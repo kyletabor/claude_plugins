@@ -1,19 +1,19 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "kyle-plugins",
-  "description": "Kyle's personal Claude Code plugins - agents, skills, and commands",
+  "description": "Kyle's personal Claude Code plugins",
   "owner": {
     "name": "Kyle Tabor",
     "url": "https://github.com/kyletabor"
   },
   "plugins": [
     {
-      "name": "kyle-agents",
+      "name": "kyle-custom",
       "source": "./",
-      "description": "Personal agents including Beadsmith and Inspector",
+      "description": "Custom agents, skills, and commands",
       "version": "0.1.0",
       "category": "development",
-      "tags": ["agents", "beadsmith", "inspector", "workflow"]
+      "tags": ["custom", "personal", "agents", "skills", "commands"]
     }
   ]
 }
