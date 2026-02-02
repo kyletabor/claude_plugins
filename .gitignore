@@ -1,0 +1,17 @@
+# Gas Town runtime (not tracked)
+.runtime/
+.logs/
+mail/
+state.json
+
+# Beads data (synced separately via beads-sync branch)
+.beads/
+
+# OS files
+.DS_Store
+*.swp
+*.swo
+*~
+
+# Note: .claude-plugin/, agents/, skills/, commands/ ARE tracked
+# This is a plugin repo - those directories are the content
