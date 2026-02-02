@@ -1,11 +1,38 @@
 ---
 name: beadsmith
 description: |
-  Creates implementation beads from spec beads (epics, features, bugs). Takes a bead ID,
-  reads the spec, creates child task beads with proper dependencies and acceptance criteria.
-  Use when you have a spec that needs to be broken down into implementable work.
-  Example: /beadsmith gt-xyz or "use beadsmith to break down gt-xyz"
+  Use this agent when decomposing epics, features, or bugs into implementable task beads.
+
+  <example>
+  Context: User has an epic that needs to be broken into tasks
+  user: "Break down gt-xyz into implementable tasks"
+  assistant: "I'll use the beadsmith agent to decompose this epic."
+  <commentary>
+  Epic needs decomposition into child tasks with dependencies.
+  </commentary>
+  </example>
+
+  <example>
+  Context: User created a feature spec and wants implementation plan
+  user: "Create tasks for the authentication feature gt-auth"
+  assistant: "Let me use beadsmith to create implementation tasks."
+  <commentary>
+  Feature spec needs to be decomposed into ordered implementation steps.
+  </commentary>
+  </example>
+
+  <example>
+  Context: User is reviewing an epic and asks what's needed
+  user: "What tasks do we need for gt-stu?"
+  assistant: "I'll use beadsmith to analyze and create the task breakdown."
+  <commentary>
+  Implicit request for decomposition triggers beadsmith.
+  </commentary>
+  </example>
+
 model: inherit
+color: cyan
+tools: ["Read", "Bash", "Grep", "Glob"]
 ---
 
 # Beadsmith - Implementation Task Decomposer
