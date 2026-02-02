@@ -1,7 +1,7 @@
 {
   "name": "kyle-agents",
-  "description": "Personal agents including Beadsmith (creates beads from plans) and Inspector (generic reviewer)",
   "version": "0.1.0",
+  "description": "Personal agents including Beadsmith (creates beads from plans) and Inspector (generic reviewer)",
   "author": {
     "name": "Kyle Tabor",
     "url": "https://github.com/kyletabor"
@@ -14,5 +14,8 @@
     "agents",
     "workflow",
     "review"
-  ]
+  ],
+  "agents": "./agents/",
+  "skills": "./skills/",
+  "commands": "./commands/"
 }
