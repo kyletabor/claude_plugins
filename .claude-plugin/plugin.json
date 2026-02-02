@@ -7,15 +7,5 @@
     "url": "https://github.com/kyletabor"
   },
   "repository": "https://github.com/kyletabor/claude_plugins",
-  "license": "MIT",
-  "keywords": [
-    "custom",
-    "personal",
-    "agents",
-    "skills",
-    "commands"
-  ],
-  "agents": "./agents/",
-  "skills": "./skills/",
-  "commands": "./commands/"
+  "license": "MIT"
 }
