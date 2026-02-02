@@ -27,7 +27,8 @@ kyle-plugins/
 ├── skills/
 │   └── beadsmith/
 │       ├── SKILL.md     # Auto-activates on decomposition discussions
-│       └── reference.md # Dependency patterns and templates
+│       └── references/
+│           └── patterns.md  # Dependency patterns and templates
 ├── commands/
 │   └── beadsmith.md     # /beadsmith shortcut command
 └── CLAUDE.md            # This file

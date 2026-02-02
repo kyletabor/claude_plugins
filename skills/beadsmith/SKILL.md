@@ -1,41 +1,42 @@
 ---
 name: beadsmith
 description: |
-  Use when decomposing epics, features, or bugs into implementable tasks. Auto-activates when
-  discussing work breakdown, task creation, or when someone says "break this down" or "create
-  tasks for this". Also activates when viewing an epic/feature that needs implementation planning.
+  This skill should be used when the user asks to "break down this epic", "decompose this feature",
+  "create implementation tasks", "what tasks do we need", or mentions work breakdown, task creation,
+  or implementation planning. Auto-activates when viewing an epic/feature that needs decomposition.
 
   Examples of when this skill activates:
   - "Let's break down this epic into tasks"
   - "Create implementation tasks for gt-xyz"
   - "This feature needs to be decomposed"
   - "What tasks do we need for this?"
+  - "Break this down into implementable work"
 ---
 
 # Beadsmith - Work Decomposition Skill
 
-This skill helps you decompose specifications (epics, features, bugs) into implementable task beads.
+Decompose specifications (epics, features, bugs) into implementable task beads with proper dependencies and acceptance criteria.
 
 ## When to Use Beadsmith
 
-Use beadsmith when you have:
-- An **epic** that needs to be broken into features or tasks
+Invoke beadsmith when facing:
+- An **epic** that needs breakdown into features or tasks
 - A **feature** that needs implementation tasks
 - A **bug** that requires multiple steps to fix
-- Any spec bead that's too large for a single work session
+- Any spec bead too large for a single work session
 
 ## When NOT to Use Beadsmith
 
-Don't use beadsmith for:
-- Simple, single-session tasks (just do them directly)
-- Research or exploration (use `bd create` for individual research tasks)
-- Work that's already well-defined with clear steps
+Skip beadsmith for:
+- Simple, single-session tasks (execute directly)
+- Research or exploration (create individual research tasks with `bd create`)
+- Work already well-defined with clear steps
 
 ## How It Works
 
-Beadsmith runs as a **subagent with isolated context** to avoid bloating your main conversation. This is important because decomposition produces a lot of output (reading specs, creating multiple beads, setting dependencies).
+Beadsmith runs as a **subagent with isolated context** to avoid bloating the main conversation. Decomposition produces significant output (reading specs, creating beads, setting dependencies) - isolation keeps the primary context clean.
 
-### Quick Start
+### Invocation
 
 To decompose a bead, invoke the beadsmith agent:
 
@@ -49,22 +50,22 @@ Task tool (kyle-custom:beadsmith):
   Decompose <bead-id> into implementable tasks
 ```
 
-### What Beadsmith Does
+### Process
 
-1. **Reads the source bead** - understands the desired outcome
-2. **Analyzes and decomposes** - breaks work into 5-20 minute tasks
-3. **Creates child beads** - with proper acceptance criteria
-4. **Sets dependencies** - only for real technical blockers
-5. **Creates gate beads** - for unclear requirements needing clarification
-6. **Self-reviews** - verifies quality before returning
-7. **Reports results** - summary of what was created
+1. **Read the source bead** - understand the desired outcome
+2. **Analyze and decompose** - break work into 5-20 minute tasks
+3. **Create child beads** - with proper acceptance criteria
+4. **Set dependencies** - only for real technical blockers
+5. **Create gate beads** - for unclear requirements needing clarification
+6. **Self-review** - verify quality before returning
+7. **Report results** - summary of created tasks
 
-## Good Decomposition Principles
+## Core Principles
 
 ### Task Sizing
 - **5-20 minutes of focused work** per task
 - Small enough for coherent context
-- Large enough to provide value
+- Large enough to provide meaningful value
 
 ### Acceptance Criteria
 Define **WHAT success looks like**, not HOW to build it:
@@ -73,15 +74,15 @@ Define **WHAT success looks like**, not HOW to build it:
 **Bad**: "Use JWT tokens and call /auth endpoint"
 
 ### Dependencies
-Only block for **real technical dependencies**:
+Block only for **real technical dependencies**:
 - Database schema before queries
 - API before client
 - Library before code that uses it
 
-**Don't block for preferences** - if tasks CAN run in parallel, let them.
+Preserve parallelism - if tasks CAN run concurrently, let them.
 
 ### Gate Beads
-When requirements are unclear, create a gate bead that blocks dependent work:
+For unclear requirements, create a gate bead blocking dependent work:
 ```
 GATE: Clarify session vs stateless JWT
 ```
@@ -105,12 +106,14 @@ gt-auth (epic - input)
         Blocks: gt-auth.2, gt-auth.3
 ```
 
-## Invoking the Agent
+## Additional Resources
 
-When you're ready to decompose, use the beadsmith agent:
+### Reference Files
 
-```
-Use the kyle-custom:beadsmith agent to decompose <bead-id>
-```
+For detailed patterns and common mistakes, consult:
+- **`references/patterns.md`** - Dependency patterns, task templates, beads commands
 
-The agent runs in isolated context and returns a summary of created tasks.
+### Agent
+
+The actual decomposition work runs in the beadsmith agent:
+- **`agents/beadsmith.md`** - Full agent with isolated context for decomposition
