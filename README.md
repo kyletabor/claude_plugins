@@ -15,16 +15,15 @@ Add this marketplace to Claude Code:
 
 ### Agents (`agents/`)
 
-- **beadsmith** - Creates beads from architecture plans with specific instructions
-- **inspector** - Generic reviewer that compares output against instructions
+- **beadsmith** - Decomposes specs into implementable task beads (runs in isolated context)
 
 ### Skills (`skills/`)
 
-(Coming soon)
+- **beadsmith** - Auto-activates on work decomposition discussions, guides when/how to use beadsmith
 
 ### Commands (`commands/`)
 
-(Coming soon)
+- `/beadsmith <bead-id>` - Shortcut to decompose an epic, feature, or bug into tasks
 
 ## Development
 
