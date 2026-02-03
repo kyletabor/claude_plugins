@@ -15,23 +15,29 @@ Add this marketplace to Claude Code:
 
 This plugin uses the following Claude Code features:
 
-- **Task tool with subagents** - Architect agent uses Explore and Plan subagents
+- **Task tool with subagents** - Architect uses Explore and Plan subagents
 - **beads (`bd` command)** - All agents create/manage beads for work tracking
+
+## The Workflow
+
+```
+Epic → Architect → Architecture Bead → Beadmeister → Task Beads → Polecats
+```
 
 ## Contents
 
 ### Agents (`agents/`)
 
-- **architect** - Takes an epic/PRD, explores codebase, designs architecture, creates implementation task beads with bite-sized steps. Does multi-pass exploration before decomposition.
-- **beadsmith** - Decomposes specs into implementable task beads (runs in isolated context)
+- **architect** - Takes an epic/PRD, explores codebase, designs architecture, creates implementation legs. Does multi-pass exploration before decomposition.
+- **beadmeister** - Takes legs from Architect, creates execution-ready task beads with step-by-step instructions for polecats.
 
 ### Skills (`skills/`)
 
-- **beadsmith** - Auto-activates on work decomposition discussions, guides when/how to use beadsmith
+- **beadmeister** - Auto-activates when converting architecture to task beads, guides usage
 
 ### Commands (`commands/`)
 
-- `/beadsmith <bead-id>` - Shortcut to decompose an epic, feature, or bug into tasks
+- `/beadmeister <architecture-bead-id>` - Create task beads from architecture
 
 ## Development
 

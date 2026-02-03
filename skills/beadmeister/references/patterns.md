@@ -1,4 +1,4 @@
-# Beadsmith Reference
+# Beadmeister Reference
 
 ## Dependency Patterns
 
@@ -40,6 +40,68 @@ Parallel paths that converge.
 
 **When to use**: Independent implementations that need integration.
 
+## Step Patterns
+
+### TDD Steps (Coding Tasks)
+```markdown
+### 1. Write failing test (~3 min)
+Create `tests/path/file.test.ts`:
+\`\`\`typescript
+// Complete test code
+\`\`\`
+
+### 2. Verify test fails (~1 min)
+\`\`\`bash
+npm test -- file.test.ts
+\`\`\`
+Expected: Test fails
+
+### 3. Implement (~5 min)
+Create `src/path/file.ts`:
+\`\`\`typescript
+// Complete implementation
+\`\`\`
+
+### 4. Verify test passes (~1 min)
+\`\`\`bash
+npm test -- file.test.ts
+\`\`\`
+Expected: All tests pass
+```
+
+### Fix/Modify Steps
+```markdown
+### 1. Locate the issue (~2 min)
+Open `src/path/file.ts:42`
+
+### 2. Make the change (~3 min)
+Replace with:
+\`\`\`typescript
+<new code>
+\`\`\`
+
+### 3. Verify (~2 min)
+\`\`\`bash
+npm test
+\`\`\`
+Expected: No regressions
+```
+
+### Research Steps
+```markdown
+### 1. Explore (~5 min)
+\`\`\`bash
+<commands>
+\`\`\`
+Looking for: <what>
+
+### 2. Document findings (~3 min)
+Create `docs/findings/<topic>.md`
+
+### 3. Report
+Add to bead comments
+```
+
 ## Common Mistakes
 
 ### Over-decomposition
@@ -70,18 +132,37 @@ Parallel paths that converge.
 ## Task Description Template
 
 ```markdown
-<Brief description of what this task accomplishes>
+<One sentence goal>
 
-## Acceptance Criteria
+## What Success Looks Like
 - [ ] <Verifiable outcome 1>
 - [ ] <Verifiable outcome 2>
 - [ ] <Verifiable outcome 3>
 
-## Context
-<Any relevant context, constraints, or notes>
+## Execution Steps
 
-## Design Notes (optional)
-<Implementation approach if non-obvious - can change during implementation>
+### 1. <Step name> (~3 min)
+<Exact instructions with complete code>
+
+### 2. <Step name> (~2 min)
+<More exact instructions>
+
+### 3. Verify (~1 min)
+\`\`\`bash
+<command to verify>
+\`\`\`
+Expected: <what success looks like>
+
+### 4. Commit
+\`\`\`bash
+git add <files>
+git commit -m "<message>"
+\`\`\`
+
+## Context
+- Reference: `<path/to/similar/file.ts>` - follow this pattern
+- Depends on: <what must exist first>
+- Watch out for: <common pitfalls>
 ```
 
 ## Beads Commands Reference
