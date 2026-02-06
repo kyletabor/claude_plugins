@@ -34,6 +34,20 @@
         "analysis",
         "workflow"
       ]
+    },
+    {
+      "name": "gastown",
+      "source": "./gastown",
+      "description": "Multi-agent orchestration system for coordinating Claude Code instances",
+      "version": "1.0.0",
+      "category": "development",
+      "tags": [
+        "multi-agent",
+        "orchestration",
+        "beads",
+        "convoys",
+        "molecules"
+      ]
     }
   ]
 }

@@ -8,6 +8,7 @@ A collection of personal plugins for Claude Code, including custom agents, skill
 |--------|-------------|---------|
 | **kyle-custom** | Custom agents, skills, and commands for Claude Code | 0.6.0 |
 | **session-historian** | Read and analyze Claude Code session history for debugging, continuity, and workflow analysis | 1.0.0 |
+| **gastown** | Multi-agent orchestration system for coordinating Claude Code instances | 1.0.0 |
 
 ## Installation
 
@@ -17,7 +18,7 @@ A collection of personal plugins for Claude Code, including custom agents, skill
 claude plugin add kyletabor/claude_plugins
 ```
 
-This installs both plugins from the marketplace configuration.
+This installs all plugins from the marketplace configuration.
 
 ### Install Individual Plugins
 
@@ -29,6 +30,11 @@ claude plugin add kyletabor/claude_plugins
 **session-historian**:
 ```bash
 claude plugin add kyletabor/claude_plugins/session-historian
+```
+
+**gastown**:
+```bash
+claude plugin add kyletabor/claude_plugins/gastown
 ```
 
 ## Plugin Details
@@ -52,6 +58,18 @@ Session historian can help you:
 - Analyze workflow patterns and agent behavior
 - Search session history for specific topics or events
 
+### gastown
+
+Multi-agent orchestration system for coordinating Claude Code instances. Teaches Claude how to operate in a Gas Town multi-agent environment, following the propulsion principle for autonomous agent coordination.
+
+The gastown skill provides:
+- Role definitions and responsibilities (mayor, sheriff, deputy, townsperson)
+- Command protocols for agent coordination
+- Workflow patterns for multi-agent collaboration
+- Best practices for the propulsion principle (autonomous, self-directed work)
+
+Originally created by Steve Yegge, maintained by Kyle Tabor.
+
 ## Repository Structure
 
 ```
@@ -68,6 +86,12 @@ Session historian can help you:
 │   ├── .claude-plugin/
 │   │   └── plugin.json
 │   └── [session analysis scripts]
+├── gastown/                 # Multi-agent orchestration plugin
+│   ├── .claude-plugin/
+│   │   └── plugin.json
+│   └── skills/
+│       └── gastown/
+│           └── SKILL.md
 └── README.md
 ```
 

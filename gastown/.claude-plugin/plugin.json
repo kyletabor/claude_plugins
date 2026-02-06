@@ -1,0 +1,18 @@
+{
+  "name": "gastown",
+  "version": "1.0.0",
+  "description": "Multi-agent orchestration system for coordinating Claude Code instances across projects. Includes skills for Gas Town environment, gt/bd commands, convoys, molecules, and the propulsion principle.",
+  "author": {
+    "name": "Steve Yegge",
+    "url": "https://github.com/steveyegge"
+  },
+  "repository": "https://github.com/steveyegge/gastown",
+  "license": "MIT",
+  "keywords": [
+    "multi-agent",
+    "orchestration",
+    "gastown",
+    "beads",
+    "convoys"
+  ]
+}
