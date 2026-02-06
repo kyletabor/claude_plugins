@@ -20,6 +20,20 @@
         "skills",
         "commands"
       ]
+    },
+    {
+      "name": "session-historian",
+      "source": "./session-historian",
+      "description": "Read and analyze Claude Code session history for debugging, continuity, and workflow analysis",
+      "version": "1.0.0",
+      "category": "analysis",
+      "tags": [
+        "session",
+        "history",
+        "debugging",
+        "analysis",
+        "workflow"
+      ]
     }
   ]
 }

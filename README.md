@@ -1,46 +1,81 @@
 # Kyle's Claude Code Plugins
 
-Personal agents, skills, and commands for Claude Code.
+A collection of personal plugins for Claude Code, including custom agents, skills, and session analysis tools.
+
+## Plugins
+
+| Plugin | Description | Version |
+|--------|-------------|---------|
+| **kyle-custom** | Custom agents, skills, and commands for Claude Code | 0.6.0 |
+| **session-historian** | Read and analyze Claude Code session history for debugging, continuity, and workflow analysis | 1.0.0 |
 
 ## Installation
 
-Add this marketplace to Claude Code:
+### Install All Plugins
 
 ```bash
-# Claude Code will prompt to add the marketplace
-# Or manually add to ~/.claude/plugins/known_marketplaces.json
+claude plugin add kyletabor/claude_plugins
 ```
 
-## Dependencies
+This installs both plugins from the marketplace configuration.
 
-This plugin uses the following Claude Code features:
+### Install Individual Plugins
 
-- **Task tool with subagents** - Architect uses Explore and Plan subagents
-- **beads (`bd` command)** - All agents create/manage beads for work tracking
-
-## The Workflow
-
-```
-Epic → Architect → Architecture Bead → Beadmeister → Task Beads → Polecats
+**kyle-custom** (root-level plugin):
+```bash
+claude plugin add kyletabor/claude_plugins
 ```
 
-## Contents
+**session-historian**:
+```bash
+claude plugin add kyletabor/claude_plugins/session-historian
+```
 
-### Agents (`agents/`)
+## Plugin Details
 
-- **architect** - Takes an epic/PRD, explores codebase, designs architecture, creates implementation legs. Does multi-pass exploration before decomposition.
-- **beadmeister** - Takes legs from Architect, creates execution-ready task beads with step-by-step instructions for polecats.
+### kyle-custom
 
-### Skills (`skills/`)
+Custom agents, skills, and commands for Claude Code workflows. Includes:
 
-- **beadmeister** - Auto-activates when converting architecture to task beads, guides usage
+- **architect** skill - Designs architecture and creates implementation tasks from epics/PRDs. Explores the codebase with parallel subagents, designs technical approach, and creates implementation task beads with step-by-step instructions.
+- **beadmeister** skill - Creates execution-ready task beads from Architect output. Converts architecture specs into polecat work with molecular, executable steps.
+- **architect** command - Slash command to invoke the architect skill
+- **beadmeister** command - Slash command to invoke the beadmeister skill
 
-### Commands (`commands/`)
+### session-historian
 
-- `/beadmeister <architecture-bead-id>` - Create task beads from architecture
+Read and analyze Claude Code session history for debugging, continuity, and workflow analysis. Provides 6 Python scripts for listing, searching, summarizing, and analyzing sessions.
 
-## Development
+Session historian can help you:
+- Debug issues by reviewing past sessions
+- Continue work from previous conversations
+- Analyze workflow patterns and agent behavior
+- Search session history for specific topics or events
 
-This repo is managed as a Gas Town rig at `~/gt/claude_plugins/`.
+## Repository Structure
 
-Changes are automatically detected by Claude Code when pushed to main.
+```
+.
+├── .claude-plugin/
+│   ├── plugin.json          # kyle-custom plugin manifest
+│   └── marketplace.json     # Multi-plugin marketplace config
+├── skills/
+│   ├── architect/           # Architecture and task decomposition skill
+│   │   └── SKILL.md
+│   └── beadmeister/         # Task bead creation skill
+│       └── SKILL.md
+├── session-historian/       # Session history analysis plugin
+│   ├── .claude-plugin/
+│   │   └── plugin.json
+│   └── [session analysis scripts]
+└── README.md
+```
+
+## Author
+
+**Kyle Tabor**
+- GitHub: [kyletabor](https://github.com/kyletabor)
+
+## License
+
+MIT
