@@ -1,0 +1,18 @@
+{
+  "name": "educate-me",
+  "version": "1.0.0",
+  "description": "Empathetic 1-on-1 tutor that teaches any subject using a structured MECE framework",
+  "author": {
+    "name": "Kyle Tabor",
+    "url": "https://github.com/kyletabor"
+  },
+  "repository": "https://github.com/kyletabor/claude_plugins",
+  "license": "MIT",
+  "keywords": [
+    "tutor",
+    "education",
+    "learning",
+    "MECE",
+    "teaching"
+  ]
+}
