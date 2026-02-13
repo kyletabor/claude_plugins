@@ -62,6 +62,20 @@
         "MECE",
         "teaching"
       ]
+    },
+    {
+      "name": "handoff",
+      "source": "./handoff",
+      "description": "Save session context and resume in fresh Claude sessions without losing continuity",
+      "version": "1.0.0",
+      "category": "workflow",
+      "tags": [
+        "handoff",
+        "context",
+        "session",
+        "continuity",
+        "memory"
+      ]
     }
   ]
 }
