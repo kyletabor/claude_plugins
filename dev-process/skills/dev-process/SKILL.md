@@ -42,11 +42,45 @@ Phase 1: Spec → Phase 2: Spec Review → Phase 3: Implement → Phase 4: Code 
 
 ## Phase 1: Architecture Spec
 
-Write a detailed spec BEFORE any code. Use the Architect skill if available, or create manually.
+Write a detailed spec BEFORE any code. This phase uses parallel codebase exploration to inform the design.
+
+### Step 1: Understand the Requirements
+
+Read and extract requirements from the source (PRD, epic, issue, or user request):
+- Goal and acceptance criteria
+- Scope boundaries (in/out)
+- Constraints and requirements
+
+### Step 2: Explore Codebase (Parallel Subagents)
+
+Launch 3 Explore subagents in parallel using the Task tool:
+
+```
+Task 1 - Pattern Discovery:
+"Find existing features similar to [feature type]. Look for patterns, file structures,
+and conventions to follow. Output: Reference files to use as templates."
+
+Task 2 - Integration Points:
+"Find where [feature] would integrate with existing code. Look for APIs, data models,
+entry points. Output: Files to modify, connection points."
+
+Task 3 - Test Patterns:
+"Find how tests are structured in this codebase. Look for unit, integration, e2e patterns.
+Output: Test file locations, testing conventions."
+```
+
+Wait for all 3 to complete, then synthesize findings.
+
+### Step 3: Design Architecture
+
+Launch a Plan subagent with the requirements and exploration findings. The subagent outputs:
+- Technical approach (how to solve it)
+- Patterns to follow (reference files)
+- Implementation legs (each sized for one agent session)
+
+### Step 4: Write the Spec
 
 The spec MUST include:
-
-### Spec Template
 
 ```markdown
 # [Feature/Fix Name] — Architecture Spec
@@ -57,6 +91,12 @@ The spec MUST include:
 ## Scope
 - **In scope**: [list]
 - **Out of scope**: [list]
+
+## Reference Patterns
+| Purpose | File | Notes |
+|---------|------|-------|
+| Similar feature | src/path/to/file | Follow this structure |
+| Test pattern | tests/path/to/test | Use this testing approach |
 
 ## Files to Modify/Create
 | File | Action | Purpose |
@@ -74,12 +114,20 @@ The spec MUST include:
 ### [Component 2]
 [repeat pattern]
 
+## Implementation Legs
+
+### Leg 1: [Name]
+[Brief description of what this leg accomplishes]
+
+### Leg 2: [Name]
+[Brief description]
+
 ## Dependencies & Parallelization
 
 ```
-Fix/Leg 1 ──┬──> Fix/Leg 3
-             │
-Fix/Leg 2 ──┘
+Leg 1 ──┬──> Leg 3
+        │
+Leg 2 ──┘
 ```
 
 [Explain what can run in parallel and what's sequential]
@@ -95,12 +143,9 @@ For each component:
 [If applicable: bypass vectors, injection risks, access control]
 ```
 
-### How to Execute Phase 1
+Save the spec as a doc in the project's docs/ folder or as a task in your tracking system.
 
-1. If an epic/PRD bead exists, read it with `bd show <id>`
-2. Launch parallel Explore subagents for pattern discovery, integration points, and test patterns
-3. Synthesize findings into the spec
-4. Save spec: either as a bead (`bd create -t task "<id>.arch"`) or as a doc in the project's docs/ folder
+See `references/architecture-template.md` for a lighter-weight template.
 
 ## Phase 2: Spec Review Gate
 
@@ -128,7 +173,7 @@ Use agent teams for parallel work. Follow the dependency diagram from the spec.
 ### Team Setup
 
 1. Create a team (if not already in one)
-2. Create task beads or TaskCreate entries for each implementation leg
+2. Create tasks for each implementation leg
 3. Set up dependencies between tasks
 4. Spawn implementation agents for each independent leg
 
@@ -137,7 +182,7 @@ Use agent teams for parallel work. Follow the dependency diagram from the spec.
 ```
 Implement [Leg Name] per the architecture spec.
 
-Spec location: [path or bead ID]
+Spec location: [path]
 Your scope: [specific section of the spec]
 
 Rules:
@@ -158,12 +203,12 @@ Rules:
 
 **STOP.** All implementation must be reviewed before merging.
 
-Launch a code review agent (or use the code-reviewer agent if available):
+Launch a code review agent:
 
 ```
 "Review the implementation against the architecture spec.
 
-Spec: [path or bead ID]
+Spec: [path]
 Changes: [git diff or file list]
 
 Check per file:
@@ -176,14 +221,14 @@ Output format:
 ### [filename]
 | Requirement | Status |
 |-------------|--------|
-| [from spec] | ✓ / ✗ |
+| [from spec] | PASS / FAIL |
 
 ### Security Review
 [explicit checks]
 
 ### Verdict
 APPROVE / REJECT
-Severity: [CRITICAL: X, HIGH: X, MEDIUM: X, LOW: X]
+Severity: [CRITICAL: X, HIGH: X, MEDIUM: X, LOW: X]"
 ```
 
 If REJECTED: fix issues and re-review.
@@ -198,19 +243,13 @@ Run all tests and verify E2E:
 3. **E2E verification**: Actually run the thing and verify it works
 4. **Regression check**: Ensure existing functionality isn't broken
 
-```bash
-# Example verification commands
-npm test              # or vitest, pytest, etc.
-# Then actually run the service and check
-```
-
 Report test results with counts: X/Y passing, any failures.
 
 ## Phase 6: Verdict & Ship
 
 If all gates passed:
 1. Final commit with clean message
-2. Update beads: `bd close <task-id>` for completed work
+2. Close/update completed tasks in your tracking system
 3. Save learnings to claude-mem for future reference
 4. Report summary to user
 
@@ -223,7 +262,7 @@ If any gate failed:
 
 | Phase | Gate | Who | Output |
 |-------|------|-----|--------|
-| 1. Spec | — | Architect agent or lead | Architecture doc |
+| 1. Spec | — | Lead + Explore agents | Architecture doc |
 | 2. Review | Spec complete? | Plan agent | APPROVE/REJECT |
 | 3. Implement | — | Implementation agents | Code + tests |
 | 4. Review | Spec compliant? | Review agent | APPROVE/REJECT |
@@ -236,3 +275,9 @@ If any gate failed:
 - **Spec changes during implementation** are OK but must be documented and re-reviewed
 - **Small scope** is better — break large features into multiple dev-process cycles
 - **Claude CLI for LLM calls**: Use `CLAUDECODE= claude --print` not Anthropic SDK
+
+## Additional Resources
+
+### Reference Files
+- **`references/architecture-template.md`** — Lighter-weight architecture spec template
+- **`references/task-template.md`** — Task description format with step-by-step instructions

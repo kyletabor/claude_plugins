@@ -1,0 +1,11 @@
+{
+  "name": "dev-process",
+  "version": "1.0.0",
+  "description": "Structured development pipeline with spec-driven architecture, review gates, and agent team coordination. The default workflow for all non-trivial implementation work.",
+  "author": {
+    "name": "Kyle Tabor",
+    "url": "https://github.com/kyletabor"
+  },
+  "repository": "https://github.com/kyletabor/claude_plugins",
+  "license": "MIT"
+}
