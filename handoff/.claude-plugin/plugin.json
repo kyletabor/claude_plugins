@@ -1,6 +1,6 @@
 {
   "name": "handoff",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Save session context and resume in fresh Claude sessions without losing continuity",
   "author": {
     "name": "Kyle Tabor",

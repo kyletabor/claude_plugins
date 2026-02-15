@@ -5,6 +5,9 @@
 HANDOFF_FILE="$HOME/.claude/handoff-context.md"
 
 if [ -f "$HANDOFF_FILE" ]; then
-  cat "$HANDOFF_FILE"
-  rm -f "$HANDOFF_FILE"
+  AGE=$(( ($(date +%s) - $(stat -c %Y "$HANDOFF_FILE")) / 3600 ))
+  echo "=== HANDOFF CONTEXT AVAILABLE (saved ${AGE}h ago) ==="
+  echo "A previous session saved context for you. Run /handoff-resume or say 'pick up where we left off' to load it."
+  echo "Run /handoff-clear to dismiss."
+  echo "=== END HANDOFF NOTICE ==="
 fi
