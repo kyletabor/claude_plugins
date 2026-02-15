@@ -1,6 +1,6 @@
 {
   "name": "openclaw-perms-request",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "OpenClaw permissions broker tools: agent permission requests and human escalation review",
   "author": {
     "name": "Kyle Tabor",
