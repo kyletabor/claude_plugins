@@ -1,16 +1,20 @@
 ---
 name: dev-process
 description: |
-  This skill should be used when implementing any non-trivial feature, fix, or project that needs
-  structured development rigor. Use when the user says "use the dev process", "follow the standard
-  pipeline", "implement this properly", or when working on multi-file changes that need architecture,
-  review gates, and testing.
+  This skill should be used ANY TIME the user asks to implement, build, or execute a plan that involves
+  multi-file changes or non-trivial features. This is the DEFAULT workflow for all implementation work
+  beyond single-file fixes. You do NOT need to be explicitly told to use it — if the task involves
+  architecture, multiple files, agent teams, or a plan to execute, USE THIS SKILL.
 
   Examples of when this skill activates:
-  - "Implement this feature using the dev process"
-  - "Follow the standard pipeline for this"
-  - "This needs proper architecture and review"
-  - "Use the structured dev workflow"
+  - "Go implement this"
+  - "Build this feature"
+  - "Execute this plan"
+  - "Implement the architecture"
+  - "Go build it"
+  - "Use the dev process"
+  - "Follow the standard pipeline"
+  - Any request to implement a PRD, epic, or multi-step plan
 ---
 
 # Structured Development Process
