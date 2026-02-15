@@ -2,7 +2,7 @@
   "id": "openclaw-perms-request",
   "name": "Permission Request Tool",
   "description": "Provides agents with a request_permission tool to request additional capabilities from the permissions broker",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "configSchema": {
     "type": "object",
     "additionalProperties": false,
