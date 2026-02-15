@@ -1,0 +1,11 @@
+{
+  "name": "openclaw-perms-request",
+  "version": "0.2.0",
+  "description": "OpenClaw permissions broker tools: agent permission requests and human escalation review",
+  "author": {
+    "name": "Kyle Tabor",
+    "url": "https://github.com/kyletabor"
+  },
+  "repository": "https://github.com/kyletabor/claude_plugins",
+  "license": "MIT"
+}
