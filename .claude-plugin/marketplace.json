@@ -76,6 +76,20 @@
         "continuity",
         "memory"
       ]
+    },
+    {
+      "name": "secret-vault",
+      "source": "./secret-vault",
+      "description": "Intercept and securely store secrets pasted in chat, auto-redact from session logs",
+      "version": "0.1.0",
+      "category": "security",
+      "tags": [
+        "secret",
+        "token",
+        "redact",
+        "security",
+        "vault"
+      ]
     }
   ]
 }

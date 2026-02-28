@@ -1,0 +1,18 @@
+{
+  "name": "secret-vault",
+  "version": "0.1.0",
+  "description": "Intercept and securely store secrets pasted in chat. Auto-redacts from session logs.",
+  "author": {
+    "name": "Kyle Tabor",
+    "url": "https://github.com/kyletabor"
+  },
+  "repository": "https://github.com/kyletabor/claude_plugins",
+  "license": "MIT",
+  "keywords": [
+    "secret",
+    "token",
+    "redact",
+    "security",
+    "vault"
+  ]
+}

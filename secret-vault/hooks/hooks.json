@@ -1,0 +1,17 @@
+{
+  "description": "Secret vault - intercepts and securely stores secrets pasted in chat",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "'${CLAUDE_PLUGIN_ROOT}/hooks/intercept-secret.sh'",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
