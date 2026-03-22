@@ -1,0 +1,11 @@
+{
+  "name": "capa",
+  "version": "1.0.0",
+  "description": "Corrective and Preventive Action (CAPA) process skill. Investigates process failures, researches best practices, fixes the process first, then re-executes to fix the original defect. Includes SQLite tracking database for pattern analysis across incidents.",
+  "author": {
+    "name": "Kyle Tabor",
+    "url": "https://github.com/kyletabor"
+  },
+  "repository": "https://github.com/kyletabor/claude_plugins",
+  "license": "MIT"
+}
