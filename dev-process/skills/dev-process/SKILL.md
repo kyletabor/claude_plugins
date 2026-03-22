@@ -44,6 +44,26 @@ Phase 1: Spec → Phase 2: Spec Review → Phase 3: Implement → Phase 4: Code 
 
 Write a detailed spec BEFORE any code. This phase uses parallel codebase exploration to inform the design.
 
+### Step 0: Verify Current State (MANDATORY)
+
+<HARD-GATE>
+Before writing ANY spec, you MUST verify the current state of the system you're targeting.
+Specs written from memory are specs written against fiction. This step has been skipped in
+5 out of 5 recent incidents, causing features to target dead code paths every time.
+</HARD-GATE>
+
+Run these checks and include the OUTPUT in your spec:
+
+1. **Trace the actual data flow** — open the app, check browser DevTools / network requests,
+   or grep the codebase to find which endpoints and code paths are ACTUALLY used
+2. **Verify the target files exist and are active** — `grep -r` for imports, route registrations,
+   or function calls that prove the code you're targeting is live (not legacy)
+3. **Check for recent changes** — `git log --oneline -10 [target files]` to see if the area
+   was recently refactored (your mental model may be stale)
+
+Include a `## Current State Verification` section in every spec with actual command output.
+If you cannot produce this evidence, you are not ready to write the spec.
+
 ### Step 1: Understand the Requirements
 
 Read and extract requirements from the source (PRD, epic, issue, or user request):
@@ -132,12 +152,26 @@ Leg 2 ──┘
 
 [Explain what can run in parallel and what's sequential]
 
+## Current State Verification
+[MANDATORY — actual command output proving this spec targets live code paths]
+- Data flow trace: [which endpoints/functions are actually called]
+- Target file verification: [grep output showing files are imported/used]
+- Recent changes: [git log of target area]
+
+## Acceptance Criteria (Executable)
+[MANDATORY — each criterion is a testable assertion, not prose]
+For each criterion, write it as: "When [action], then [observable result]"
+Example:
+- When user loads conversation view, DOM contains `.tool-group` elements (count > 0)
+- When user clicks tool group header, expanded content becomes visible
+These MUST be convertible to Playwright assertions. Prose-only criteria are rejected at review.
+
 ## Test Requirements
 
 For each component:
 - Unit tests: [count and description]
 - Integration tests: [if applicable]
-- E2E verification: [manual or automated checks]
+- E2E tests: [Playwright tests that verify acceptance criteria against REAL data, not mocks]
 
 ## Security Considerations
 [If applicable: bypass vectors, injection risks, access control]
@@ -234,26 +268,65 @@ Severity: [CRITICAL: X, HIGH: X, MEDIUM: X, LOW: X]"
 If REJECTED: fix issues and re-review.
 If APPROVED: proceed to Phase 5.
 
-## Phase 5: Testing
+## Phase 5: Testing + Independent Verification
 
-Run all tests and verify E2E:
+### 5a: Run Tests (Builder)
 
-1. **Unit tests**: Run the full test suite
+1. **Unit tests**: Run the full test suite — report BEFORE and AFTER counts
+   (e.g., "was 118, now 130" — if count didn't increase, new tests weren't added or aren't running)
 2. **Integration tests**: If applicable
-3. **E2E verification**: Actually run the thing and verify it works
-4. **Regression check**: Ensure existing functionality isn't broken
+3. **Regression check**: Ensure existing functionality isn't broken
 
-Report test results with counts: X/Y passing, any failures.
+### 5b: Independent Verification (NOT the Builder)
+
+<HARD-GATE>
+The agent who built it CANNOT verify it. This is non-negotiable.
+In 5 out of 5 recent incidents, self-certification led to shipping broken features.
+</HARD-GATE>
+
+Spawn a **separate verification agent** (use the `independent-verifier` agent if available,
+or launch a fresh Agent with read-only + Playwright access):
+
+```
+"Verify this feature works from the USER's perspective.
+
+Spec: [path to spec with acceptance criteria]
+App URL: [the URL the user actually uses]
+
+For EACH acceptance criterion in the spec:
+1. Load the app the way the user loads it (not a test harness)
+2. Perform the user action described
+3. Check the observable result matches the criterion
+4. Take a screenshot as evidence
+
+Report:
+| Acceptance Criterion | Result | Evidence |
+|---------------------|--------|----------|
+| [criterion] | PASS/FAIL | [screenshot or DOM check] |
+
+You have NO access to edit code. You can only read, browse, and report.
+If ANY criterion fails, report FAIL — do not attempt to fix."
+```
+
+If the verifier reports FAIL → return to Phase 3 with the failure details.
+If the verifier reports PASS → proceed to Phase 6 with the evidence.
 
 ## Phase 6: Verdict & Ship
 
-If all gates passed:
+**Pre-ship checklist** (all must be YES):
+- [ ] Spec includes Current State Verification with command output?
+- [ ] Acceptance criteria are executable (not prose)?
+- [ ] Test count increased? (before: ___, after: ___)
+- [ ] Independent verifier (not builder) confirmed feature works?
+- [ ] Verifier evidence (screenshots/DOM checks) included in report?
+
+If all YES:
 1. Final commit with clean message
 2. Close/update completed tasks in your tracking system
 3. Save learnings to claude-mem for future reference
-4. Report summary to user
+4. Report summary to user WITH verifier evidence attached
 
-If any gate failed:
+If any NO:
 1. Document what failed and why
 2. Create fix tasks
 3. Loop back to the appropriate phase
@@ -262,12 +335,13 @@ If any gate failed:
 
 | Phase | Gate | Who | Output |
 |-------|------|-----|--------|
-| 1. Spec | — | Lead + Explore agents | Architecture doc |
-| 2. Review | Spec complete? | Plan agent | APPROVE/REJECT |
+| 1. Spec | Current state verified? | Lead + Explore agents | Architecture doc with evidence |
+| 2. Review | Spec complete? Criteria executable? | Plan agent | APPROVE/REJECT |
 | 3. Implement | — | Implementation agents | Code + tests |
 | 4. Review | Spec compliant? | Review agent | APPROVE/REJECT |
-| 5. Test | Tests pass? | Test runner | Results |
-| 6. Ship | All gates? | Lead | Done or iterate |
+| 5a. Test | Tests pass? Count increased? | Builder | Test results |
+| 5b. Verify | Feature works for user? | **Independent verifier** (NOT builder) | Evidence |
+| 6. Ship | All gates + verifier evidence? | Lead | Done or iterate |
 
 ## Tips
 

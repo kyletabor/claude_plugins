@@ -1,7 +1,7 @@
 {
   "name": "dev-process",
-  "version": "1.0.0",
-  "description": "Structured development pipeline with spec-driven architecture, review gates, and agent team coordination. The default workflow for all non-trivial implementation work.",
+  "version": "2.0.0",
+  "description": "Structured development pipeline with spec-driven architecture, review gates, independent verification, and agent team coordination. v2: adds current-state verification gate, executable acceptance criteria, independent verifier agent (builder != verifier), and CAPA-driven process hardening.",
   "author": {
     "name": "Kyle Tabor",
     "url": "https://github.com/kyletabor"
