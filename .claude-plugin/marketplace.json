@@ -90,6 +90,20 @@
         "security",
         "vault"
       ]
+    },
+    {
+      "name": "capture",
+      "source": "./capture",
+      "description": "Quick-capture tasks, bookmarks, ideas, follow-ups, and research items to your personal inbox via MCP",
+      "version": "1.0.0",
+      "category": "workflow",
+      "tags": [
+        "capture",
+        "task",
+        "bookmark",
+        "inbox",
+        "quick-capture"
+      ]
     }
   ]
 }
