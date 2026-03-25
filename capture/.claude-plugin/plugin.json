@@ -1,6 +1,11 @@
 {
   "name": "capture",
-  "version": "1.0.0",
-  "description": "Quick task capture via MCP",
-  "author": "Kyle"
+  "version": "1.0.1",
+  "description": "Quick-capture tasks, bookmarks, ideas, follow-ups, and research items to your personal inbox via MCP",
+  "author": {
+    "name": "Kyle Tabor",
+    "url": "https://github.com/kyletabor"
+  },
+  "repository": "https://github.com/kyletabor/claude_plugins",
+  "license": "MIT"
 }
