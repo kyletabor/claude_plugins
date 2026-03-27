@@ -1,0 +1,53 @@
+{
+  "description": "Verification Hooks — independent work verification gates for Claude Code",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/verify-before-close.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "TaskCompleted": [
+      {
+        "hooks": [
+          {
+            "type": "agent",
+            "prompt": "You are an independent verification agent. A task was just marked complete.\n\nTask details: $ARGUMENTS\n\nYour job:\n1. Run git diff --stat to see what changed\n2. Check if changes match the task description\n3. Run relevant tests if a test runner exists (look for package.json scripts, pytest, etc.)\n4. Look for integration issues: wrong paths, missing configs, untested assumptions\n5. Return {\"ok\": true} if correct, or {\"ok\": false, \"reason\": \"specific issues found\"}\n\nBe thorough but fast. Focus on: does the implementation match the intent?",
+            "model": "claude-sonnet-4-6",
+            "timeout": 120
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "agent",
+            "prompt": "You are a verification agent that fires when Claude finishes responding.\n\nFirst, determine if significant technical work happened:\n- Run: git diff --stat (check for uncommitted changes)\n- Run: git diff --cached --stat (check for staged changes)\n- If no file changes in any git repo, return {\"ok\": true} immediately\n- If changes are only to documentation/notes (not code), return {\"ok\": true}\n\nIf significant technical work DID happen:\n1. What was the intent? (Read recent conversation context if available)\n2. Do the changes look correct? (Read changed files)\n3. Any obvious integration issues? (Wrong paths, missing configs, untested assumptions)\n4. Were tests run? Should they have been?\n\nReturn {\"ok\": true} if work looks correct or no significant work happened.\nReturn {\"ok\": false, \"reason\": \"specific issues\"} only if you find real problems.\n\nBe fast. Most responses will be quick 'no significant work' passes.\n$ARGUMENTS",
+            "model": "claude-sonnet-4-6",
+            "timeout": 120
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/verification-logger.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "name": "verification-hooks",
+  "version": "1.0.0",
+  "description": "Independent work verification gates for Claude Code — enforces verification at task boundaries via hooks",
+  "author": {
+    "name": "Kyle Tabor",
+    "url": "https://github.com/kyletabor"
+  },
+  "repository": "https://github.com/kyletabor/claude_plugins",
+  "license": "MIT",
+  "keywords": [
+    "verification",
+    "hooks",
+    "quality",
+    "testing",
+    "enforcement"
+  ]
+}
