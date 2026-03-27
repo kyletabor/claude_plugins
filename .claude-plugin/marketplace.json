@@ -104,6 +104,34 @@
         "inbox",
         "quick-capture"
       ]
+    },
+    {
+      "name": "dev-process",
+      "source": "./dev-process",
+      "description": "Structured development pipeline with spec-driven architecture, review gates, independent verification, and agent team coordination",
+      "version": "2.0.0",
+      "category": "development",
+      "tags": [
+        "dev-process",
+        "pipeline",
+        "verification",
+        "architecture",
+        "implementation"
+      ]
+    },
+    {
+      "name": "capa",
+      "source": "./capa",
+      "description": "Corrective and Preventive Action process for investigating and fixing broken processes",
+      "version": "1.0.0",
+      "category": "development",
+      "tags": [
+        "capa",
+        "process",
+        "retrospective",
+        "root-cause",
+        "verification"
+      ]
     }
   ]
 }
