@@ -25,6 +25,18 @@
         ]
       }
     ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "agent",
+            "prompt": "You are an independent verification agent. A subagent just finished its work.\n\nSubagent details: $ARGUMENTS\n\nYour job:\n1. Run git diff --stat to see what changed\n2. Check if changes match the subagent's task\n3. Run relevant tests if a test runner exists\n4. Look for integration issues: wrong paths, missing configs, untested assumptions\n5. Return {\"ok\": true} if correct, or {\"ok\": false, \"reason\": \"specific issues found\"}\n\nBe thorough but fast.",
+            "model": "claude-sonnet-4-6",
+            "timeout": 120
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "hooks": [
