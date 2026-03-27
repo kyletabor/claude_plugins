@@ -1,0 +1,12 @@
+[
+  {
+    "event": "SessionStart",
+    "hooks": [
+      {
+        "type": "command",
+        "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/validate-marketplace.sh",
+        "timeout": 5000
+      }
+    ]
+  }
+]
