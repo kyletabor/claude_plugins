@@ -61,7 +61,11 @@ Deterministic checks for high-risk operations:
 
 ## Monitoring
 
-All events log to `~/.local/log/verification-hooks.jsonl`. Run the analysis script:
+Command hooks (PreToolUse bd close gate, PostToolUse logger) log to `~/.local/log/verification-hooks.jsonl`.
+Agent hooks (Stop, TaskCompleted, SubagentStop) are visible in the session spinner but do not write
+to the JSONL log — they run as Sonnet agents without access to the log writer script.
+
+Run the analysis script:
 
 ```bash
 bash ${CLAUDE_PLUGIN_ROOT}/scripts/analyze-verification.sh
