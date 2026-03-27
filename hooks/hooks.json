@@ -1,12 +1,16 @@
-[
-  {
-    "event": "SessionStart",
-    "hooks": [
+{
+  "description": "Marketplace-level hooks for kyle-plugins",
+  "hooks": {
+    "SessionStart": [
       {
-        "type": "command",
-        "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/validate-marketplace.sh",
-        "timeout": 5000
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/validate-marketplace.sh",
+            "timeout": 5
+          }
+        ]
       }
     ]
   }
-]
+}
