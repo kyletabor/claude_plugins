@@ -1,5 +1,5 @@
 #!/bin/bash
-# Verification gate for bd close commands and infrastructure operations
+# Verification gate for bd close commands
 # PreToolUse hook on Bash — exits instantly for non-matching commands
 # Exit 0 = allow, Exit 2 = block
 set -o pipefail
@@ -83,31 +83,6 @@ You have full tool access. Read files, run commands, check state. Be thorough bu
 After the verification agent completes, retry: bd close$UNVERIFIED
 EOF
   exit 2
-fi
-
-# ========================================
-# Gate 2: Infrastructure gates
-# ========================================
-
-# Docker build gate — log but don't block
-if echo "$COMMAND" | grep -qE "docker (build|compose.*(up|build))"; then
-  EVENT=$(jq -nc --arg cmd "$COMMAND" '{"gate":"infra","action":"allowed","details":{"trigger":"docker_build","command":$cmd}}')
-  log_event "$EVENT"
-  exit 0
-fi
-
-# Batch operation gate — require single-item test first
-if echo "$COMMAND" | grep -qE "(qmd embed|migrate|import).*--all|npx qmd embed"; then
-  if [ ! -f /tmp/single-item-test-passed ]; then
-    EVENT=$(jq -nc --arg cmd "$COMMAND" '{"gate":"infra","action":"blocked","details":{"trigger":"batch_operation","command":$cmd,"single_item_test":false,"reason":"single-item test required first"}}')
-    log_event "$EVENT"
-    echo "BATCH OPERATION DETECTED. Before processing all items, test with one first." >&2
-    echo "Run the same command on a single item, verify it works, then: touch /tmp/single-item-test-passed" >&2
-    exit 2
-  fi
-  rm -f /tmp/single-item-test-passed
-  EVENT=$(jq -nc --arg cmd "$COMMAND" '{"gate":"infra","action":"allowed","details":{"trigger":"batch_operation","command":$cmd,"single_item_test":true}}')
-  log_event "$EVENT"
 fi
 
 # Not a gated command — allow through immediately

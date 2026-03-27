@@ -28,7 +28,6 @@ Four gates fire at natural checkpoints:
 | Issue Close | PreToolUse (Bash) | command script | YES | Verify before `bd close` |
 | Task Complete | TaskCompleted | Sonnet agent | YES | Verify subagent work |
 | Stop | Stop | Sonnet agent | YES (once) | Catch-all for untracked work |
-| Infrastructure | PreToolUse (Bash) | command script | YES | Block risky batch ops |
 
 ### bd close Gate
 
@@ -52,12 +51,6 @@ Fires when Claude finishes any response. The agent checks for uncommitted git ch
 If none exist, it passes immediately. If significant work happened, it verifies correctness.
 
 One-shot limitation: Stop can only block once per turn to prevent infinite loops.
-
-### Infrastructure Gates
-
-Deterministic checks for high-risk operations:
-- **Batch operations**: Require single-item test before processing all items
-- **Docker builds**: Logged for the Stop gate to review
 
 ## Monitoring
 

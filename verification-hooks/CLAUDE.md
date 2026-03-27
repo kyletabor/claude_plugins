@@ -14,7 +14,6 @@ not a skippable suggestion.
   independent-verifier agent first.
 - **TaskCompleted**: Sonnet agent automatically verifies completed tasks.
 - **Stop**: Sonnet agent checks for uncommitted changes and verifies significant work.
-- **Infrastructure**: Blocks batch operations without single-item test.
 
 ## Monitoring
 
