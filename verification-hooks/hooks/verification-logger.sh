@@ -17,11 +17,16 @@ case "$TOOL_NAME" in
     if echo "$COMMAND" | grep -qE "^(ls|cat|head|tail|grep|find|git (log|status|diff|show|branch)|pwd|echo|which|type|bd (show|list|ready|search|stats))"; then
       exit 0
     fi
-    log_event "{\"gate\":\"logger\",\"action\":\"logged\",\"details\":{\"tool\":\"$TOOL_NAME\",\"command_prefix\":\"$(echo "$COMMAND" | head -c 100)\"}}"
+    # Use jq to build valid JSON (handles quotes in commands)
+    EVENT=$(jq -nc --arg tool "$TOOL_NAME" --arg cmd "$(echo "$COMMAND" | head -c 100)" \
+      '{"gate":"logger","action":"logged","details":{"tool":$tool,"command_prefix":$cmd}}')
+    log_event "$EVENT"
     ;;
   Edit|Write)
     FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // "unknown"' 2>/dev/null)
-    log_event "{\"gate\":\"logger\",\"action\":\"logged\",\"details\":{\"tool\":\"$TOOL_NAME\",\"file\":\"$FILE_PATH\"}}"
+    EVENT=$(jq -nc --arg tool "$TOOL_NAME" --arg file "$FILE_PATH" \
+      '{"gate":"logger","action":"logged","details":{"tool":$tool,"file":$file}}')
+    log_event "$EVENT"
     ;;
   *)
     # Unknown tool — skip

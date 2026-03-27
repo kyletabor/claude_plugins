@@ -30,7 +30,8 @@ if echo "$COMMAND" | grep -q "bd close"; then
 
   if [ -z "$ISSUE_IDS" ]; then
     # Can't parse IDs — allow through (fail-open)
-    log_event "{\"gate\":\"bd_close\",\"action\":\"skipped\",\"details\":{\"reason\":\"no issue IDs parsed\",\"command\":\"$COMMAND\"}}"
+    EVENT=$(jq -nc --arg cmd "$COMMAND" '{"gate":"bd_close","action":"skipped","details":{"reason":"no issue IDs parsed","command":$cmd}}')
+    log_event "$EVENT"
     exit 0
   fi
 
@@ -48,12 +49,16 @@ if echo "$COMMAND" | grep -q "bd close"; then
 
   if [ -z "$UNVERIFIED" ]; then
     # All verified — log and allow
-    log_event "{\"gate\":\"bd_close\",\"action\":\"allowed\",\"duration_ms\":$DURATION_MS,\"details\":{\"issue_ids\":\"$(echo $ISSUE_IDS | tr ' ' ',')\",\"command\":\"$COMMAND\"}}"
+    EVENT=$(jq -nc --arg ids "$(echo $ISSUE_IDS | tr ' ' ',')" --arg cmd "$COMMAND" --argjson dur "$DURATION_MS" \
+      '{"gate":"bd_close","action":"allowed","duration_ms":$dur,"details":{"issue_ids":$ids,"command":$cmd}}')
+    log_event "$EVENT"
     exit 0
   fi
 
   # Block — require verification first
-  log_event "{\"gate\":\"bd_close\",\"action\":\"blocked\",\"duration_ms\":$DURATION_MS,\"details\":{\"issue_ids\":\"$(echo $UNVERIFIED | tr ' ' ',')\",\"reason\":\"no VERIFIED note\",\"command\":\"$COMMAND\"}}"
+  EVENT=$(jq -nc --arg ids "$(echo $UNVERIFIED | tr ' ' ',')" --arg cmd "$COMMAND" --argjson dur "$DURATION_MS" \
+    '{"gate":"bd_close","action":"blocked","duration_ms":$dur,"details":{"issue_ids":$ids,"reason":"no VERIFIED note","command":$cmd}}')
+  log_event "$EVENT"
 
   cat >&2 <<EOF
 VERIFICATION REQUIRED before closing issue(s):$UNVERIFIED
@@ -86,20 +91,23 @@ fi
 
 # Docker build gate — log but don't block
 if echo "$COMMAND" | grep -qE "docker (build|compose.*(up|build))"; then
-  log_event "{\"gate\":\"infra\",\"action\":\"allowed\",\"details\":{\"trigger\":\"docker_build\",\"command\":\"$COMMAND\"}}"
+  EVENT=$(jq -nc --arg cmd "$COMMAND" '{"gate":"infra","action":"allowed","details":{"trigger":"docker_build","command":$cmd}}')
+  log_event "$EVENT"
   exit 0
 fi
 
 # Batch operation gate — require single-item test first
 if echo "$COMMAND" | grep -qE "(qmd embed|migrate|import).*--all|npx qmd embed"; then
   if [ ! -f /tmp/single-item-test-passed ]; then
-    log_event "{\"gate\":\"infra\",\"action\":\"blocked\",\"details\":{\"trigger\":\"batch_operation\",\"command\":\"$COMMAND\",\"single_item_test\":false,\"reason\":\"single-item test required first\"}}"
+    EVENT=$(jq -nc --arg cmd "$COMMAND" '{"gate":"infra","action":"blocked","details":{"trigger":"batch_operation","command":$cmd,"single_item_test":false,"reason":"single-item test required first"}}')
+    log_event "$EVENT"
     echo "BATCH OPERATION DETECTED. Before processing all items, test with one first." >&2
     echo "Run the same command on a single item, verify it works, then: touch /tmp/single-item-test-passed" >&2
     exit 2
   fi
   rm -f /tmp/single-item-test-passed
-  log_event "{\"gate\":\"infra\",\"action\":\"allowed\",\"details\":{\"trigger\":\"batch_operation\",\"command\":\"$COMMAND\",\"single_item_test\":true}}"
+  EVENT=$(jq -nc --arg cmd "$COMMAND" '{"gate":"infra","action":"allowed","details":{"trigger":"batch_operation","command":$cmd,"single_item_test":true}}')
+  log_event "$EVENT"
 fi
 
 # Not a gated command — allow through immediately
