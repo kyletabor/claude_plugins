@@ -1,10 +1,20 @@
 ---
 name: dev-process
 description: |
-  This skill should be used ANY TIME the user asks to implement, build, or execute a plan that involves
-  multi-file changes or non-trivial features. This is the DEFAULT workflow for all implementation work
-  beyond single-file fixes. You do NOT need to be explicitly told to use it — if the task involves
-  architecture, multiple files, agent teams, or a plan to execute, USE THIS SKILL.
+  THE SINGLE ORCHESTRATOR for all implementation work. This skill should be used ANY TIME the user asks
+  to implement, build, or execute a plan that involves multi-file changes or non-trivial features. This
+  is the DEFAULT workflow for all implementation work beyond single-file fixes. You do NOT need to be
+  explicitly told to use it — if the task involves architecture, multiple files, agent teams, or a plan
+  to execute, USE THIS SKILL.
+
+  This skill orchestrates sub-skills — do NOT use them independently for implementation work:
+  - `brainstorming` — design exploration (Phase 1)
+  - `test-driven-development` — TDD per requirement (Phase 3)
+  - `subagent-driven-development` — parallel execution engine (Phase 3)
+  - `verification-before-completion` — verification enforcement (Phase 5)
+
+  It also integrates with beads for persistent requirement tracking. Every requirement becomes a beads
+  issue with acceptance criteria, tracked from creation through verified closure.
 
   Examples of when this skill activates:
   - "Go implement this"
@@ -14,6 +24,8 @@ description: |
   - "Go build it"
   - "Use the dev process"
   - "Follow the standard pipeline"
+  - "Implement this"
+  - "Build this"
   - Any request to implement a PRD, epic, or multi-step plan
 ---
 
@@ -44,7 +56,13 @@ Phase 1: Spec → Phase 2: Spec Review → Phase 3: Implement → Phase 4: Code 
 
 Write a detailed spec BEFORE any code. This phase uses parallel codebase exploration to inform the design.
 
-### Step 0: Verify Current State (MANDATORY)
+### Step 0a: Design Exploration (When Starting From Scratch)
+
+If the feature is greenfield or the approach is unclear, invoke the `brainstorming` skill first for
+design exploration. Let brainstorming run its full cycle (diverge → converge → decide), then carry the
+chosen approach into the spec below. Skip this if you already have a clear PRD or plan to execute.
+
+### Step 0b: Verify Current State (MANDATORY)
 
 <HARD-GATE>
 Before writing ANY spec, you MUST verify the current state of the system you're targeting.
@@ -181,6 +199,19 @@ Save the spec as a doc in the project's docs/ folder or as a task in your tracki
 
 See `references/architecture-template.md` for a lighter-weight template.
 
+### Step 5: Create Beads Issues From Requirements
+
+After the spec is approved, create a beads issue for EACH requirement/acceptance criterion:
+
+```bash
+bd create --title='R1: [requirement name]' --description='[acceptance criteria — testable assertion]' --type=feature
+bd create --title='R2: [requirement name]' --description='[acceptance criteria]' --type=feature
+# ... one per requirement
+```
+
+This creates the tracking trail. Every requirement gets a beads issue that must be individually
+verified and closed before the feature can ship. Do NOT skip this step.
+
 ## Phase 2: Spec Review Gate
 
 **STOP.** Do not proceed to implementation without review.
@@ -203,6 +234,20 @@ If APPROVED: proceed to Phase 3.
 ## Phase 3: Implementation
 
 Use agent teams for parallel work. Follow the dependency diagram from the spec.
+
+### Sub-Skill Integration
+
+- **Use the `test-driven-development` skill** for each requirement. Write the test first, then the
+  implementation. This is not optional — every requirement gets TDD treatment.
+- **Use the `subagent-driven-development` skill** to parallelize work across independent requirements.
+  Each implementation leg runs as a subagent with isolated scope.
+
+### Progress Tracking
+
+After each requirement is implemented (code + tests written):
+1. Update its beads issue: `bd update <id> --status=in_progress`
+2. Git checkpoint: commit the requirement with a clear message (e.g., "Implement R3: [name]")
+3. Do NOT batch commits — one commit per requirement keeps the trail clean
 
 ### Team Setup
 
@@ -270,6 +315,9 @@ If APPROVED: proceed to Phase 5.
 
 ## Phase 5: Testing + Independent Verification
 
+**Invoke the `verification-before-completion` skill** to enforce this entire phase. Do not skip it
+or claim verification happened without running through the skill's checklist.
+
 ### 5a: Run Tests (Builder)
 
 1. **Unit tests**: Run the full test suite — report BEFORE and AFTER counts
@@ -308,23 +356,46 @@ You have NO access to edit code. You can only read, browse, and report.
 If ANY criterion fails, report FAIL — do not attempt to fix."
 ```
 
+The independent verifier also updates beads as it verifies each requirement:
+
+```bash
+# For each verified requirement:
+bd close <id> --reason='Verified: [evidence description — screenshot path or DOM assertion result]'
+```
+
 If the verifier reports FAIL → return to Phase 3 with the failure details.
 If the verifier reports PASS → proceed to Phase 6 with the evidence.
 
 ## Phase 6: Verdict & Ship
 
-**Pre-ship checklist** (all must be YES):
+### Beads Gate (MANDATORY)
+
+Before evaluating the pre-ship checklist, check beads:
+
+```bash
+bd list --status=open
+```
+
+If ANY beads issues for this feature remain open, you are NOT done. Do NOT claim completion.
+Go back to the phase where the open requirement needs work.
+
+### Pre-ship checklist (all must be YES):
 - [ ] Spec includes Current State Verification with command output?
 - [ ] Acceptance criteria are executable (not prose)?
 - [ ] Test count increased? (before: ___, after: ___)
 - [ ] Independent verifier (not builder) confirmed feature works?
 - [ ] Verifier evidence (screenshots/DOM checks) included in report?
+- [ ] All beads issues for this feature are closed? (`bd list --status=open` returns none)
 
 If all YES:
 1. Final commit with clean message
 2. Close/update completed tasks in your tracking system
 3. Save learnings to claude-mem for future reference
-4. Report summary to user WITH verifier evidence attached
+4. **Present beads summary to user as proof of completion:**
+   ```bash
+   bd list  # Show all issues — should all be closed with verification evidence
+   ```
+5. Report summary to user WITH verifier evidence AND beads trail attached
 
 If any NO:
 1. Document what failed and why

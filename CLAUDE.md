@@ -1,56 +1,58 @@
-# Kyle's Claude Code Plugins
+# Claude Plugins Repo
 
-Personal plugin repository for custom agents, skills, and commands.
+Marketplace of Claude Code plugins. GitHub: kyletabor/claude_plugins, marketplace name: kyle-plugins.
+
+## Repo Structure
+
+```
+claude_plugins/
+  .claude-plugin/
+    marketplace.json       # Marketplace manifest — ALL plugins must be registered here
+  hooks/
+    hooks.json             # Root-level hooks (SessionStart validation)
+  scripts/
+    validate-marketplace.sh  # Checks for unregistered plugin dirs on session start
+  capa/                    # CAPA process (corrective/preventive action)
+  capture/                 # Quick-capture inbox via capture-mcp MCP server
+  dev-process/             # Structured dev pipeline (spec, review, verification)
+  educate-me/              # 1-on-1 MECE tutor
+  gastown/                 # Multi-agent orchestration (ABANDONED — do not invest)
+  handoff/                 # Session context save/restore
+  secret-vault/            # Secret interception and redaction
+  session-historian/       # Session history reader and analyzer
+```
+
+Each plugin has its own `.claude-plugin/plugin.json` and contains some combination of `skills/`, `commands/`, `hooks/`, and `agents/` directories.
 
 ## Plugin Update Workflow
 
-When making changes to this plugin:
+1. Edit files in this repo (~/projects/claude_plugins/).
+2. Bump the version in BOTH the plugin's `.claude-plugin/plugin.json` AND the matching entry in `.claude-plugin/marketplace.json`. They must match.
+   - Patch (0.1.0 -> 0.1.1): Bug fixes
+   - Minor (0.1.0 -> 0.2.0): New features, new skills/agents/commands
+   - Major (0.1.0 -> 1.0.0): Breaking changes
+3. Commit and push to GitHub.
+4. Start a new Claude Code session. It fetches the new version from the marketplace.
 
-1. **Make your changes** to skills/, agents/, or commands/
-2. **Bump the version** in `.claude-plugin/plugin.json` (use semver)
-   - Patch (0.1.0 → 0.1.1): Bug fixes
-   - Minor (0.1.0 → 0.2.0): New features, new skills/agents/commands
-   - Major (0.1.0 → 1.0.0): Breaking changes
-3. **Commit and push** to GitHub
-4. **Start a new Claude Code session** - it will fetch the new version from the marketplace
+Claude Code caches plugins by version. Without a version bump, the cache will not refresh even after pushing changes.
 
-**Why version bump matters:** Claude Code caches plugins by version. Without a version bump, the cache won't refresh even after pushing changes.
+## Critical: marketplace.json Registration
 
-## Structure
+Every plugin directory with a `.claude-plugin/plugin.json` MUST have a matching entry in `.claude-plugin/marketplace.json`. Without it, the plugin is invisible to Claude Code. This has caused silent failures multiple times.
 
-```
-kyle-plugins/
-├── .claude-plugin/
-│   └── plugin.json      # Plugin metadata and version
-├── agents/
-│   └── beadsmith.md     # Work decomposition agent (isolated context)
-├── skills/
-│   └── beadsmith/
-│       ├── SKILL.md     # Auto-activates on decomposition discussions
-│       └── references/
-│           └── patterns.md  # Dependency patterns and templates
-├── commands/
-│   └── beadsmith.md     # /beadsmith shortcut command
-└── CLAUDE.md            # This file
-```
+A SessionStart hook runs `scripts/validate-marketplace.sh` to warn about unregistered plugins, but it is informational only and does not block.
 
-## Components
+When adding a new plugin:
+1. Create the directory with `.claude-plugin/plugin.json`.
+2. Add a corresponding entry to `.claude-plugin/marketplace.json` with matching name and version.
+3. Verify by running: `bash scripts/validate-marketplace.sh`
 
-### Beadsmith (skill + agent)
+## Testing Plugins
 
-Decomposes epics, features, or bugs into implementable task beads.
+After making changes, verify the plugin works:
 
-**Architecture:** Skill-that-invokes-agent pattern
-- **Skill** auto-activates when discussing work breakdown
-- **Agent** runs in isolated context to avoid bloating main conversation
-
-**Usage:**
-- Auto-activates on phrases like "break this down" or "create tasks for this"
-- Or explicitly: `/beadsmith <bead-id>`
-- Or via Task tool: `Use the beadsmith agent to decompose <bead-id>`
-
-## Development
-
-This plugin is part of the Gas Town ecosystem. The source lives at:
-- GitHub: https://github.com/kyletabor/claude_plugins
-- Marketplace: kyle-plugins (registered in ~/.claude/plugins/known_marketplaces.json)
+1. Run the marketplace validator: `CLAUDE_PLUGIN_ROOT=. bash scripts/validate-marketplace.sh`
+2. Confirm version match: check that the version in the plugin's `plugin.json` matches its entry in `marketplace.json`.
+3. Commit, push, then start a fresh Claude Code session.
+4. Invoke the changed skill or command and confirm it behaves as expected.
+5. For plugins with test suites (e.g., session-historian/tests/), run those tests directly.
