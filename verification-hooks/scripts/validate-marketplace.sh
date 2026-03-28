@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 # Validates that every plugin directory has a matching marketplace.json entry.
-# Runs as a SessionStart hook via kyle-custom plugin.
+# Runs as a SessionStart hook via verification-hooks plugin.
 # Exit 0 always (informational only — never blocks session start).
 
 set -euo pipefail
 
-REPO_ROOT="${CLAUDE_PLUGIN_ROOT:-.}"
+# CLAUDE_PLUGIN_ROOT points to verification-hooks/, so go up one level for repo root
+REPO_ROOT="${CLAUDE_PLUGIN_ROOT:-.}/.."
 MARKETPLACE="$REPO_ROOT/.claude-plugin/marketplace.json"
 
 if [[ ! -f "$MARKETPLACE" ]]; then

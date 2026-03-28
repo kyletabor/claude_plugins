@@ -8,20 +8,6 @@
   },
   "plugins": [
     {
-      "name": "kyle-custom",
-      "source": "./",
-      "description": "Marketplace-level hooks and validation scripts for the kyle-plugins collection",
-      "version": "0.6.1",
-      "category": "development",
-      "tags": [
-        "custom",
-        "personal",
-        "agents",
-        "skills",
-        "commands"
-      ]
-    },
-    {
       "name": "session-historian",
       "source": "./session-historian",
       "description": "Read and analyze Claude Code session history for debugging, continuity, and workflow analysis",
@@ -137,7 +123,7 @@
       "name": "verification-hooks",
       "source": "./verification-hooks",
       "description": "Independent work verification gates — enforces verification at task boundaries via hooks",
-      "version": "1.0.2",
+      "version": "1.1.0",
       "category": "development",
       "tags": [
         "verification",
