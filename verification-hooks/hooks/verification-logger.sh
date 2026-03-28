@@ -20,13 +20,13 @@ case "$TOOL_NAME" in
     # Use jq to build valid JSON (handles quotes in commands)
     EVENT=$(jq -nc --arg tool "$TOOL_NAME" --arg cmd "$(echo "$COMMAND" | head -c 100)" \
       '{"gate":"logger","action":"logged","details":{"tool":$tool,"command_prefix":$cmd}}')
-    log_event "$EVENT"
+    log_event "$EVENT" "$INPUT"
     ;;
   Edit|Write)
     FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // "unknown"' 2>/dev/null)
     EVENT=$(jq -nc --arg tool "$TOOL_NAME" --arg file "$FILE_PATH" \
       '{"gate":"logger","action":"logged","details":{"tool":$tool,"file":$file}}')
-    log_event "$EVENT"
+    log_event "$EVENT" "$INPUT"
     ;;
   *)
     # Unknown tool — skip

@@ -4,21 +4,29 @@ This plugin enforces independent work verification at task boundaries via Claude
 
 ## What It Does
 
-When Claude claims work is done (bd close, TaskComplete, or Stop after code changes), a fresh
+When Claude claims work is done (bd close, TaskComplete, SubagentStop), a fresh
 Sonnet agent checks if the work actually matches requirements. This is architectural enforcement,
 not a skippable suggestion.
 
 ## Gates
 
-- **bd close**: Blocks unless the issue has a `VERIFIED:` note. Instructs Claude to spawn the
-  independent-verifier agent first.
+- **bd close** (PreToolUse): Blocks unless the issue has a `VERIFIED:` note. Instructs Claude to
+  spawn the independent-verifier agent first.
+  - **Exceptions**: Duplicate issues (labeled `duplicate-of:`) are allowed through and logged.
+  - **Circuit breaker**: After 3 blocks on the same issue, agent can override with `--reason`.
 - **TaskCompleted**: Sonnet agent automatically verifies completed tasks.
-- **Stop**: Sonnet agent checks for uncommitted changes and verifies significant work.
+- **SubagentStop**: Sonnet agent automatically verifies subagent work.
 
-## Monitoring
+## Data Location
 
-All events log to `~/.local/log/verification-hooks.jsonl`. This file is essential system data.
-Run `bash ${CLAUDE_PLUGIN_ROOT}/scripts/analyze-verification.sh` for a health report.
+All events log to `~/.local/share/verification-hooks/events.jsonl`. This directory should be
+included in backups. A symlink at `~/.local/log/verification-hooks.jsonl` provides backward
+compatibility.
+
+Exception events (`action: "exception_allowed"`) are the highest-value audit items:
+```bash
+jq 'select(.action == "exception_allowed")' ~/.local/share/verification-hooks/events.jsonl
+```
 
 ## Fail-Open
 
