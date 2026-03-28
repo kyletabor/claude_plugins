@@ -80,6 +80,10 @@ Invoke: `/secret` for the guided flow, or paste a secret and the hook catches it
 
 Multi-agent orchestration plugin for Gas Town environments. Originally created by Steve Yegge, this plugin taught Claude how to operate with Gas Town roles (Mayor, Polecat, Crew, etc.) and coordinate across multiple Claude instances. **Deprecated and no longer maintained** -- Gas Town v0.7 has unfixable bugs that make it unreliable. Kept in the repo for reference only.
 
+## Guides
+
+- **[Statusline Setup](docs/statusline-setup.md)** — How I configure the Claude Code statusline: a two-line dashboard with context bar, git status, active task, session duration, and lines changed. Includes the full script, customization recipes, and the available JSON fields.
+
 ## Repository Structure
 
 ```
