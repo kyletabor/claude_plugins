@@ -37,18 +37,6 @@
         ]
       }
     ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "agent",
-            "prompt": "You are a verification agent that fires when Claude finishes responding.\n\nFirst, determine if significant technical work happened:\n- Run: git diff --stat (check for uncommitted changes)\n- Run: git diff --cached --stat (check for staged changes)\n- If no file changes in any git repo, return {\"ok\": true} immediately\n- If changes are only to documentation/notes (not code), return {\"ok\": true}\n\nIf significant technical work DID happen:\n1. What was the intent? (Read recent conversation context if available)\n2. Do the changes look correct? (Read changed files)\n3. Any obvious integration issues? (Wrong paths, missing configs, untested assumptions)\n4. Were tests run? Should they have been?\n\nReturn {\"ok\": true} if work looks correct or no significant work happened.\nReturn {\"ok\": false, \"reason\": \"specific issues\"} only if you find real problems.\n\nBe fast. Most responses will be quick 'no significant work' passes.\n$ARGUMENTS",
-            "model": "claude-sonnet-4-6",
-            "timeout": 120
-          }
-        ]
-      }
-    ],
     "PostToolUse": [
       {
         "matcher": "Bash|Edit|Write",

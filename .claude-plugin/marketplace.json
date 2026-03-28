@@ -137,7 +137,7 @@
       "name": "verification-hooks",
       "source": "./verification-hooks",
       "description": "Independent work verification gates — enforces verification at task boundaries via hooks",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "category": "development",
       "tags": [
         "verification",
