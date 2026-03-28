@@ -82,7 +82,7 @@ Multi-agent orchestration plugin for Gas Town environments. Originally created b
 
 ## Guides
 
-- **[Statusline Setup](docs/statusline-setup.md)** — How I configure the Claude Code statusline: a two-line dashboard with context bar, git status, active task, session duration, and lines changed. Includes the full script, customization recipes, and the available JSON fields.
+- **[Statusline Setup](docs/statusline-setup.md)** — How I configure the Claude Code statusline: a two-line dashboard with context bar, git repo/branch, model name, session duration with API time ratio, active task, lines changed, total tokens (including subagents), and weekly rate limit. Includes the full script, customization recipes, and the complete JSON field reference.
 
 ## Repository Structure
 

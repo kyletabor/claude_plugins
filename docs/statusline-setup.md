@@ -7,13 +7,13 @@ The Claude Code statusline is a persistent bar at the bottom of your terminal th
 Two-line dashboard optimized for staying in flow:
 
 ```
-orangepi:claude_plugins 🌿 main +3 ~2              ⏱ 14m
-▓▓▓▓▓▓░░░░ 62%  │  🔵 Fix sidebar icons  │  +47 -12  │  2.2M tok
+orangepi:claude_plugins 🌿 main +3 ~2  Opus 4.6  ⏱ 14m (34% api)
+▓▓▓▓▓▓░░░░ 62%  │  🔵 Fix sidebar icons  │  +47 -12  │  2.2M tok  │  9% wk
 ```
 
-**Line 1:** hostname, git repo name (with subdirectory if nested), git branch with staged/modified file counts, session duration.
+**Line 1:** hostname, git repo name (with subdirectory if nested), git branch with staged/modified file counts, model name, session duration with API time ratio.
 
-**Line 2:** Context window remaining (color-coded progress bar), active task title, lines added/removed this session, total tokens used (including all subagents).
+**Line 2:** Context window remaining (color-coded progress bar), active task title, lines added/removed this session, total tokens used (including all subagents), 7-day rate limit usage.
 
 ### Why these fields?
 
@@ -22,15 +22,16 @@ orangepi:claude_plugins 🌿 main +3 ~2              ⏱ 14m
 | **Context bar** | Context depletion sneaks up on you. Green/yellow/red at a glance tells you when to wrap up or handoff. |
 | **Active task** | Glancing down and seeing what I'm supposed to be working on keeps me on track. Pulls from my issue tracker ([beads](https://github.com/anthropics/claude-code/tree/main/.beads)). |
 | **Git repo + branch** | Shows which repo you're in (not just the leaf directory) plus staged/modified counts so you know if you forgot to commit. |
-| **Session duration** | "Take a break" signal. If it says 2h+, I've been at it too long. |
+| **Model name** | Useful when switching between Opus, Sonnet, and Haiku across sessions. Suffixes like "(1M context)" are stripped for brevity. |
+| **Session duration + API ratio** | Duration is a "take a break" signal. The API ratio (`34% api`) shows how much of wall-clock time was Claude thinking vs you reading/typing. High ratio = Claude's been grinding. |
 | **Lines changed** | Seeing `+147 -23` tells me the session was productive. |
 | **Total tokens** | Cumulative across all subagents — the real measure of how much work this session did. Formatted as K/M for readability. |
+| **Weekly rate limit** | 7-day usage percentage, color-coded green/yellow/red. Even on Max plan, knowing where you stand prevents surprise throttling. |
 | **No cost tracking** | I'm on the Max plan (unlimited). If you're on usage-based billing, swap in `cost.total_cost_usd` instead. |
 
 ### What I didn't include
 
-- **Model name** — I know what model I'm using. Wasted space.
-- **Rate limits** — Max plan, not relevant. Add `rate_limits.five_hour.used_percentage` if you're on Pro.
+- **Effort level** — not exposed in the statusline JSON payload (as of v2.1.86). Claude Code shows it in its own UI chrome, but scripts can't access it.
 - **Kubernetes/Docker context** — Some devs love this. I don't switch clusters during coding sessions.
 
 ## Installation
@@ -42,18 +43,21 @@ Save this to `~/.claude/statusline-command.sh`:
 ```bash
 #!/bin/bash
 # 2-line statusline dashboard
-# Line 1: host:repo, git branch+status, session duration
-# Line 2: context bar, active task, lines changed, total tokens
+# Line 1: host:repo, git branch+status, model, duration + api ratio
+# Line 2: context bar, active task, lines changed, total tokens, weekly rate
 input=$(cat)
 
 # --- Parse JSON input ---
 cwd=$(echo "$input" | jq -r '.workspace.current_dir // .cwd // empty')
 remaining=$(echo "$input" | jq -r '.context_window.remaining_percentage // empty')
 duration_ms=$(echo "$input" | jq -r '.cost.total_duration_ms // empty')
+api_duration_ms=$(echo "$input" | jq -r '.cost.total_api_duration_ms // empty')
 lines_added=$(echo "$input" | jq -r '.cost.total_lines_added // 0')
 lines_removed=$(echo "$input" | jq -r '.cost.total_lines_removed // 0')
 total_in=$(echo "$input" | jq -r '.context_window.total_input_tokens // 0')
 total_out=$(echo "$input" | jq -r '.context_window.total_output_tokens // 0')
+model=$(echo "$input" | jq -r '.model.display_name // empty')
+rate_7d=$(echo "$input" | jq -r '.rate_limits.seven_day.used_percentage // empty')
 
 host=$(hostname -s)
 
@@ -85,16 +89,28 @@ if git -C "$cwd" rev-parse --git-dir >/dev/null 2>&1; then
   fi
 fi
 
-# --- Session duration ---
+# --- Model name (shortened) ---
+model_info=""
+if [ -n "$model" ] && [ "$model" != "null" ]; then
+  short_model=$(echo "$model" | sed 's/ (.*)//')
+  model_info=$(printf "  \033[2m%s\033[0m" "$short_model")
+fi
+
+# --- Session duration + API ratio ---
 duration_info=""
-if [ -n "$duration_ms" ] && [ "$duration_ms" != "null" ]; then
+if [ -n "$duration_ms" ] && [ "$duration_ms" != "null" ] && [ "$duration_ms" -gt 0 ] 2>/dev/null; then
   total_s=$((duration_ms / 1000))
   hours=$((total_s / 3600))
   mins=$(( (total_s % 3600) / 60 ))
+  ratio=""
+  if [ -n "$api_duration_ms" ] && [ "$api_duration_ms" != "null" ] && [ "$api_duration_ms" -gt 0 ] 2>/dev/null; then
+    pct_api=$((api_duration_ms * 100 / duration_ms))
+    ratio=$(printf " (%d%% api)" "$pct_api")
+  fi
   if [ "$hours" -gt 0 ]; then
-    duration_info=$(printf " \033[2m⏱ %dh %dm\033[0m" "$hours" "$mins")
+    duration_info=$(printf " \033[2m⏱ %dh %dm%s\033[0m" "$hours" "$mins" "$ratio")
   elif [ "$mins" -gt 0 ]; then
-    duration_info=$(printf " \033[2m⏱ %dm\033[0m" "$mins")
+    duration_info=$(printf " \033[2m⏱ %dm%s\033[0m" "$mins" "$ratio")
   fi
 fi
 
@@ -118,6 +134,19 @@ if [ -n "$remaining" ] && [ "$remaining" != "null" ]; then
   ctx_bar=$(printf "\033[${color}m${bar}\033[0m %d%%" "$pct")
 fi
 
+# --- Weekly rate limit (color-coded) ---
+rate_info=""
+if [ -n "$rate_7d" ] && [ "$rate_7d" != "null" ]; then
+  if [ "$rate_7d" -ge 80 ] 2>/dev/null; then
+    rate_color="31" # red
+  elif [ "$rate_7d" -ge 50 ] 2>/dev/null; then
+    rate_color="33" # yellow
+  else
+    rate_color="32" # green
+  fi
+  rate_info=$(printf " \033[2m│\033[0m \033[${rate_color}m%d%% wk\033[0m" "$rate_7d")
+fi
+
 # --- Total tokens (input + output, formatted as K or M) ---
 tokens_info=""
 total_tokens=$((total_in + total_out))
@@ -139,8 +168,8 @@ if [ "$lines_added" -gt 0 ] || [ "$lines_removed" -gt 0 ]; then
 fi
 
 # --- Output ---
-printf "\033[1;31m%s\033[0m:\033[36m%s\033[0m%s%s\n" "$host" "$dir" "$git_info" "$duration_info"
-printf "%s%s%s" "$ctx_bar" "$lines_info" "$tokens_info"
+printf "\033[1;31m%s\033[0m:\033[36m%s\033[0m%s%s%s\n" "$host" "$dir" "$git_info" "$model_info" "$duration_info"
+printf "%s%s%s%s" "$ctx_bar" "$lines_info" "$tokens_info" "$rate_info"
 ```
 
 > **Note:** The script above omits the task tracker integration (beads) since that's specific to my setup. If you use a task tracker with a CLI, you can add a cached lookup — see the "Adding a task tracker" section below.
@@ -197,7 +226,7 @@ if [ "$(echo "$cost > 0" | bc 2>/dev/null)" = "1" ]; then
 fi
 ```
 
-### Adding rate limit tracking (Pro plan)
+### Adding 5-hour rate limit tracking
 
 ```bash
 rate=$(echo "$input" | jq -r '.rate_limits.five_hour.used_percentage // empty')
@@ -213,7 +242,8 @@ The full list of data your script receives on stdin:
 | Field | Description |
 |-------|-------------|
 | `workspace.current_dir` | Current working directory |
-| `model.display_name` | Active model name |
+| `model.id` | Model identifier (e.g., `claude-opus-4-6[1m]`) |
+| `model.display_name` | Human-readable model name |
 | `context_window.remaining_percentage` | Context % remaining |
 | `context_window.used_percentage` | Context % used |
 | `context_window.context_window_size` | Total context size (200K or 1M) |
@@ -221,12 +251,17 @@ The full list of data your script receives on stdin:
 | `context_window.total_output_tokens` | Cumulative output tokens (all subagents) |
 | `cost.total_cost_usd` | Session cost in USD |
 | `cost.total_duration_ms` | Session wall-clock time |
+| `cost.total_api_duration_ms` | Time spent waiting for API responses |
 | `cost.total_lines_added` | Lines added this session |
 | `cost.total_lines_removed` | Lines removed this session |
 | `rate_limits.five_hour.used_percentage` | 5-hour rate limit usage |
+| `rate_limits.five_hour.resets_at` | 5-hour window reset timestamp |
 | `rate_limits.seven_day.used_percentage` | 7-day rate limit usage |
+| `rate_limits.seven_day.resets_at` | 7-day window reset timestamp |
+| `output_style.name` | Current output style |
 | `session_id` | Current session ID |
 | `version` | Claude Code version |
+| `exceeds_200k_tokens` | Whether context exceeds 200K threshold |
 
 ## Performance Tips
 
