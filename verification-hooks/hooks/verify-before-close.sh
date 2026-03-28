@@ -51,42 +51,50 @@ fi
 # Extract arguments after "bd close"
 ARGS_STRING=$(echo "$BD_CLOSE_SEGMENT" | sed 's/^bd[[:space:]]*close[[:space:]]*//')
 
-# Parse arguments: separate flags from issue IDs
-ISSUE_IDS=""
+# Extract --reason value FIRST (before word-splitting destroys quoted strings)
+# Handles: --reason "multi word", --reason 'multi word', --reason=value, -r "value"
 CLOSE_REASON=""
-SKIP_NEXT=false
-
-for arg in $ARGS_STRING; do
-  if $SKIP_NEXT; then
-    # This is the value for the previous flag
-    if [ "$PREV_FLAG" = "--reason" ] || [ "$PREV_FLAG" = "-r" ]; then
-      CLOSE_REASON="$arg"
-    fi
-    SKIP_NEXT=false
-    continue
+if echo "$ARGS_STRING" | grep -qE '(--reason|^-r |-r )'; then
+  # Extract quoted reason: --reason "..." or --reason '...'
+  CLOSE_REASON=$(echo "$ARGS_STRING" | sed -n 's/.*--reason[= ]*"\([^"]*\)".*/\1/p')
+  if [ -z "$CLOSE_REASON" ]; then
+    CLOSE_REASON=$(echo "$ARGS_STRING" | sed -n "s/.*--reason[= ]*'\([^']*\)'.*/\1/p")
   fi
+  # Unquoted single-word reason: --reason value
+  if [ -z "$CLOSE_REASON" ]; then
+    CLOSE_REASON=$(echo "$ARGS_STRING" | sed -n 's/.*--reason[= ]*\([^ ]*\).*/\1/p')
+  fi
+  # -r shorthand
+  if [ -z "$CLOSE_REASON" ]; then
+    CLOSE_REASON=$(echo "$ARGS_STRING" | sed -n 's/.*-r *"\([^"]*\)".*/\1/p')
+  fi
+  if [ -z "$CLOSE_REASON" ]; then
+    CLOSE_REASON=$(echo "$ARGS_STRING" | sed -n 's/.*-r *\([^ ]*\).*/\1/p')
+  fi
+fi
 
+# Parse arguments: separate flags from issue IDs
+# Strip --reason and its value, --session and its value, shell redirections
+CLEAN_ARGS=$(echo "$ARGS_STRING" | \
+  sed 's/--reason[= ]*"[^"]*"//g' | \
+  sed "s/--reason[= ]*'[^']*'//g" | \
+  sed 's/--reason[= ]*[^ ]*//g' | \
+  sed 's/-r *"[^"]*"//g' | \
+  sed 's/-r *[^ ]*//g' | \
+  sed 's/--session[= ]*[^ ]*//g' | \
+  sed 's/[0-9]*>&[0-9]*//g')
+
+ISSUE_IDS=""
+for arg in $CLEAN_ARGS; do
   case "$arg" in
-    --help|-h|--force|-f|--continue|--claim-next|--suggest-next)
-      # Known flags that don't take values — skip
-      # --help means this isn't a real close attempt
-      if [ "$arg" = "--help" ] || [ "$arg" = "-h" ]; then
-        exit 0
-      fi
+    --help|-h)
+      exit 0
       ;;
-    --reason|-r|--session)
-      # Flags that take a value — skip next arg too
-      PREV_FLAG="$arg"
-      SKIP_NEXT=true
-      ;;
-    --reason=*)
-      CLOSE_REASON="${arg#--reason=}"
-      ;;
-    --*)
-      # Unknown flag — skip
+    --force|-f|--continue|--claim-next|--suggest-next|--*)
+      # Known flags — skip
       ;;
     -*)
-      # Short flag — skip
+      # Short flags — skip
       ;;
     *)
       # Potential issue ID: must contain at least one hyphen
