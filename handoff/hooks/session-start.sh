@@ -1,13 +1,23 @@
 #!/usr/bin/env bash
 # Handoff plugin - SessionStart hook
-# Checks for saved handoff context and injects it into the new session
+# Scans for pending handoff files and notifies the new session
 
-HANDOFF_FILE="$HOME/.claude/handoff-context.md"
+HANDOFF_DIR="/mnt/pi-data/claude-workspace/handoffs"
 
-if [ -f "$HANDOFF_FILE" ]; then
-  AGE=$(( ($(date +%s) - $(stat -c %Y "$HANDOFF_FILE")) / 3600 ))
-  echo "=== HANDOFF CONTEXT AVAILABLE (saved ${AGE}h ago) ==="
-  echo "A previous session saved context for you. Run /handoff-resume or say 'pick up where we left off' to load it."
-  echo "Run /handoff-clear to dismiss."
+# Ensure directory exists
+mkdir -p "$HANDOFF_DIR/archive" 2>/dev/null
+
+# Count active handoff files (not in archive/)
+PENDING=$(find "$HANDOFF_DIR" -maxdepth 1 -name '*.md' -type f 2>/dev/null)
+
+if [ -n "$PENDING" ]; then
+  COUNT=$(echo "$PENDING" | wc -l)
+  echo "=== HANDOFF CONTEXT AVAILABLE (${COUNT} pending) ==="
+  while IFS= read -r f; do
+    BASENAME=$(basename "$f")
+    AGE=$(( ($(date +%s) - $(stat -c %Y "$f")) / 3600 ))
+    echo "  - ${BASENAME} (${AGE}h ago)"
+  done <<< "$PENDING"
+  echo "Run /handoff-resume to load, or /handoff-clear to archive."
   echo "=== END HANDOFF NOTICE ==="
 fi

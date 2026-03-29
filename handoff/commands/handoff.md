@@ -19,7 +19,11 @@ Follow the handoff skill instructions to:
 
 1. **Gather** the current session context (goals, unfinished work, key files, decisions, last intent)
 2. **Include** any user-provided notes from the arguments above
-3. **Save** to both claude-mem (long-term) and `~/.claude/handoff-context.md` (immediate injection)
-4. **Confirm** to the user that context is saved and they can safely close and restart
+3. **Generate filename** using the naming convention: `YYYY-MM-DDTHHMM-<bead-id>-<slug>.md`
+   - Check `bd list --status=in_progress` for an active bead ID. If none, omit the bead portion.
+   - Slug: 3-5 word kebab-case summary of the session's main work
+   - Example: `2026-03-28T2042-kyle-dev-infra-234-fix-handoff-plugin.md`
+4. **Save** to both claude-mem (long-term) and `/mnt/pi-data/claude-workspace/handoffs/<filename>` (immediate injection)
+5. **Confirm** to the user that context is saved and they can safely close and restart
 
 The next Claude session will automatically receive the saved context via the SessionStart hook.
