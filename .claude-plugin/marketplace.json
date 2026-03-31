@@ -132,6 +132,21 @@
         "enforcement",
         "testing"
       ]
+    },
+    {
+      "name": "tmux",
+      "source": "./tmux",
+      "description": "Tmux session control for Claude Code — launch test sessions, send commands, read output with multi-agent safety",
+      "version": "1.0.0",
+      "category": "development",
+      "tags": [
+        "tmux",
+        "terminal",
+        "session",
+        "verification",
+        "testing",
+        "multi-agent"
+      ]
     }
   ]
 }

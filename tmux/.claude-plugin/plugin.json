@@ -1,0 +1,19 @@
+{
+  "name": "tmux",
+  "version": "1.0.0",
+  "description": "Tmux session control for Claude Code — launch test sessions, send commands, read output with multi-agent safety",
+  "author": {
+    "name": "Kyle Tabor",
+    "url": "https://github.com/kyletabor"
+  },
+  "repository": "https://github.com/kyletabor/claude_plugins",
+  "license": "MIT",
+  "keywords": [
+    "tmux",
+    "terminal",
+    "session",
+    "verification",
+    "testing",
+    "multi-agent"
+  ]
+}
