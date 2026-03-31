@@ -116,6 +116,77 @@ if [ -z "$ISSUE_IDS" ]; then
 fi
 
 # ========================================
+# Gate 0: Dependency verification gate (CAPA-8)
+# When closing R-prefixed requirement issues, require a closed GATE: issue.
+# Three agents read wrapper code instead of library source and missed a critical API.
+# This gate prevents shipping without validating dependency assumptions.
+# ========================================
+
+HAS_R_ISSUE=false
+for ID in $ISSUE_IDS; do
+  R_TITLE=$(bd show "$ID" --json 2>/dev/null | jq -r '.[0].title // empty' 2>/dev/null || true)
+  if [[ "$R_TITLE" =~ ^R[0-9]+: ]]; then
+    HAS_R_ISSUE=true
+    break
+  fi
+done
+
+if $HAS_R_ISSUE; then
+  # Check if a closed GATE: issue exists in this project
+  GATE_CLOSED_COUNT=$(bd list --status=closed 2>/dev/null | grep -c "GATE:" 2>/dev/null || true)
+
+  if [ "$GATE_CLOSED_COUNT" -eq 0 ] 2>/dev/null; then
+    # No closed GATE — check if one exists at all (for better error message)
+    GATE_ANY=$(bd list 2>/dev/null | grep "GATE:" | head -1 || true)
+
+    if [ -n "$GATE_ANY" ]; then
+      # GATE exists but not closed
+      GATE_ID=$(echo "$GATE_ANY" | awk '{print $2}')
+      EVENT=$(jq -nc --arg ids "$(echo $ISSUE_IDS | tr ' ' ',')" --arg cmd "$COMMAND" --arg gate "$GATE_ID" \
+        '{"gate":"dependency_verification","action":"blocked","details":{"reason":"GATE issue not closed","gate_id":$gate,"issue_ids":$ids,"command":$cmd}}')
+      log_event "$EVENT" "$INPUT"
+      cat >&2 <<EOF
+DEPENDENCY VERIFICATION REQUIRED before closing requirement issues.
+
+GATE issue $GATE_ID exists but is not yet closed. You must verify dependency
+assumptions against actual library source code before closing requirements.
+
+Steps:
+1. For each external dependency in the spec, read the ACTUAL library source
+   (node_modules/pkg/dist/*) — NOT wrapper code
+2. Confirm the assumed capabilities exist at source
+3. Add evidence: bd update $GATE_ID --notes='VERIFIED: $(date -Iseconds) | Deps: [list] | Source: [node_modules/ paths]'
+4. Close it: bd close $GATE_ID
+5. Then retry closing your requirement issues
+
+This gate exists because agents trusted wrapper code without checking library
+source and missed critical APIs (CAPA-8).
+EOF
+      exit 2
+    else
+      # No GATE issue at all — dev-process was not followed
+      EVENT=$(jq -nc --arg ids "$(echo $ISSUE_IDS | tr ' ' ',')" --arg cmd "$COMMAND" \
+        '{"gate":"dependency_verification","action":"blocked","details":{"reason":"no GATE issue exists","issue_ids":$ids,"command":$cmd}}')
+      log_event "$EVENT" "$INPUT"
+      cat >&2 <<EOF
+DEPENDENCY VERIFICATION GATE MISSING.
+
+You're closing requirement issues (R-prefixed) but no GATE issue exists.
+Dev-process requires a "GATE: Dependencies verified at source" issue.
+
+Create and verify it:
+  bd create --title='GATE: Dependencies verified at source' \\
+    --description='Verify dependency assumptions against library source, not wrapper code' \\
+    --type=task --priority=1
+
+Then verify dependencies, add VERIFIED: evidence, close the GATE issue, and retry.
+EOF
+      exit 2
+    fi
+  fi
+fi
+
+# ========================================
 # Gate 1: bd close verification
 # ========================================
 
