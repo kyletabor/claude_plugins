@@ -1,7 +1,7 @@
 {
   "name": "dev-process",
-  "version": "2.0.0",
-  "description": "Structured development pipeline with spec-driven architecture, review gates, independent verification, and agent team coordination. v2: adds current-state verification gate, executable acceptance criteria, independent verifier agent (builder != verifier), and CAPA-driven process hardening.",
+  "version": "2.2.0",
+  "description": "Structured development pipeline with spec-driven architecture, review gates, independent verification, and agent team coordination. v2.2: adds Phase 5c plugin verification — enforces that plugins actually load in fresh sessions, not just file checks.",
   "author": {
     "name": "Kyle Tabor",
     "url": "https://github.com/kyletabor"

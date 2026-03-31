@@ -176,6 +176,14 @@ Leg 2 ──┘
 - Target file verification: [grep output showing files are imported/used]
 - Recent changes: [git log of target area]
 
+## Dependency Verification
+[MANDATORY — for each external dependency referenced in the spec]
+| Dependency | Assumed Capability | Verified At Source? | Source Path |
+|---|---|---|---|
+| @pkg/name | method X exists | YES/NO | node_modules/@pkg/name/dist/file.js:L123 |
+[Phase 2 reviewer will REJECT specs without this section. The GATE beads issue
+cannot be closed without VERIFIED: evidence citing these source paths.]
+
 ## Acceptance Criteria (Executable)
 [MANDATORY — each criterion is a testable assertion, not prose]
 For each criterion, write it as: "When [action], then [observable result]"
@@ -207,10 +215,24 @@ After the spec is approved, create a beads issue for EACH requirement/acceptance
 bd create --title='R1: [requirement name]' --description='[acceptance criteria — testable assertion]' --type=feature
 bd create --title='R2: [requirement name]' --description='[acceptance criteria]' --type=feature
 # ... one per requirement
+
+# MANDATORY: Create the dependency verification gate
+bd create --title='GATE: Dependencies verified at source' \
+  --description='Verify all external dependency assumptions against actual library source (node_modules/), not wrapper code. Close with VERIFIED: evidence citing source file paths.' \
+  --type=task --priority=1
 ```
 
 This creates the tracking trail. Every requirement gets a beads issue that must be individually
-verified and closed before the feature can ship. Do NOT skip this step.
+verified and closed before the feature can ship. The GATE issue enforces that dependency
+assumptions were checked against real library source — not just our wrapper code. Do NOT skip
+this step.
+
+<HARD-GATE>
+The GATE issue is NOT optional. The verify-before-close hook will BLOCK closing any R-prefixed
+requirement issue unless a GATE: issue has been closed with VERIFIED: evidence. If you skip
+creating the GATE issue, you will be blocked at close time. Three separate agents read wrapper
+code instead of library source and missed a critical API — this gate prevents that (CAPA-8).
+</HARD-GATE>
 
 ## Phase 2: Spec Review Gate
 
@@ -225,11 +247,40 @@ Launch a Plan subagent to review the spec:
 3. Is the test plan adequate?
 4. Are dependencies correctly mapped?
 5. Any security concerns missed?
+6. Are dependency assumptions verified AT SOURCE? For each external dependency
+   referenced in the spec, was the ACTUAL library source (node_modules/pkg/dist/*)
+   inspected — not just our wrapper code? Are source file paths cited as evidence?
+   If the spec references dependency capabilities without citing library source → REJECT.
 Output: APPROVE with notes, or REJECT with specific issues."
 ```
 
 If REJECTED: fix the spec and re-review.
-If APPROVED: proceed to Phase 3.
+If APPROVED: complete the dependency verification gate before proceeding to Phase 3.
+
+### Dependency Verification (Close the GATE Issue)
+
+<HARD-GATE>
+After spec approval, you MUST close the GATE issue before starting implementation.
+The verify-before-close hook will block closing ANY R-prefixed requirement issue
+until the GATE issue is closed. This is architectural enforcement, not a suggestion.
+</HARD-GATE>
+
+For each external dependency referenced in the spec:
+
+1. **Read the actual library source** — `node_modules/pkg/dist/*`, NOT your wrapper code.
+   If the dependency is inside a container, exec in and read the source there.
+2. **List the methods/APIs you found** — what does the library actually expose?
+3. **Compare to spec assumptions** — does the library support what the spec assumes?
+4. **Look for capabilities the spec missed** — are there better-suited APIs you didn't know about?
+
+Then close the GATE issue with evidence:
+
+```bash
+bd update <gate-id> --notes='VERIFIED: [date] | Dependencies checked: [list] | Source paths: [node_modules/ paths where capabilities confirmed]'
+bd close <gate-id>
+```
+
+If the library does NOT support what the spec assumed → update the spec and re-review.
 
 ## Phase 3: Implementation
 
@@ -364,7 +415,44 @@ bd close <id> --reason='Verified: [evidence description — screenshot path or D
 ```
 
 If the verifier reports FAIL → return to Phase 3 with the failure details.
-If the verifier reports PASS → proceed to Phase 6 with the evidence.
+If the verifier reports PASS → proceed to Phase 5c (if plugin work) or Phase 6.
+
+### 5c: Plugin Verification (If Work Involves Plugins)
+
+<HARD-GATE>
+Publishing a plugin to a marketplace and verifying files exist is NOT verification.
+The plugin must actually LOAD in a fresh Claude Code session. This step has been missed
+repeatedly — "pushed to GitHub" was treated as "done" when the plugin wasn't even installed.
+</HARD-GATE>
+
+Skip this section if the work doesn't involve Claude Code plugins. For plugin work:
+
+**For NEW plugins (not yet installed):**
+
+1. Launch a fresh Claude Code session (use the `tmux` skill if available):
+   ```bash
+   SESSION="agent-verify-plugin-$(openssl rand -hex 2)"
+   tmux new-session -d -s "$SESSION" -c <workdir> "claude --dangerously-skip-permissions"
+   ```
+2. Install the plugin: send `/plugin install <name>` to the session
+3. Reload: send `/reload-plugins`
+4. Verify the skill appears: ask the session to list skills containing the plugin name
+5. Clean up the tmux session
+
+**For UPDATED plugins (version bump):**
+
+1. Launch a fresh Claude Code session (new sessions fetch updated marketplace)
+2. Run `/doctor` — check for plugin errors
+3. Run `/skills` — verify the skill is listed with the correct plugin name
+4. Invoke the skill with a test prompt to confirm it activates correctly
+5. Clean up the tmux session
+
+**Verification evidence must include:**
+- The `/skills` or skill list output showing the plugin loaded
+- Or the skill activation output showing it triggered correctly
+- Plugin version confirmed (cache shows correct version)
+
+Do NOT accept "marketplace.json updated" or "files pushed" as verification. The plugin must load.
 
 ## Phase 6: Verdict & Ship
 
