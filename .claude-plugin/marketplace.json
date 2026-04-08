@@ -147,6 +147,20 @@
         "testing",
         "multi-agent"
       ]
+    },
+    {
+      "name": "pre-mortem",
+      "source": "./pre-mortem",
+      "description": "Pre-mortem analysis — define success/failure criteria before execution using Gary Klein's prospective hindsight research",
+      "version": "1.0.0",
+      "category": "development",
+      "tags": [
+        "pre-mortem",
+        "planning",
+        "quality",
+        "verification",
+        "risk-analysis"
+      ]
     }
   ]
 }
