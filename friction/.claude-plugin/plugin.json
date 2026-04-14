@@ -1,0 +1,11 @@
+{
+  "name": "friction",
+  "version": "0.1.0",
+  "description": "Friction mining lifecycle for Total Recall — mining session transcripts, writing v2 stories, extracting moments from Kyle's comments, logging to the knowledge graph, and enriching over time. Encodes quality conventions so future sessions don't need re-teaching.",
+  "author": {
+    "name": "Kyle Tabor",
+    "url": "https://github.com/kyletabor"
+  },
+  "repository": "https://github.com/kyletabor/claude_plugins",
+  "license": "MIT"
+}
