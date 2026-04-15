@@ -1,0 +1,18 @@
+{
+  "name": "deploy-standard",
+  "version": "1.0.0",
+  "description": "Enforces Kyle Deploy Standard v1 — all deployable projects use /opt symlink layout, Docker, /mnt/pi-data bind mounts.",
+  "author": {
+    "name": "Kyle Tabor",
+    "url": "https://github.com/kyletabor"
+  },
+  "repository": "https://github.com/kyletabor/claude_plugins",
+  "license": "MIT",
+  "keywords": [
+    "deploy",
+    "production",
+    "docker",
+    "systemd",
+    "deploy-standard"
+  ]
+}

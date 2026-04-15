@@ -1,0 +1,17 @@
+{
+  "description": "Deploy Standard v1 enforcement — blocks writes to /opt/<project>/current, /etc/systemd/system, cp/mv/rsync into /opt, and `docker compose up` outside the deploy tool",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/pre-tool-use.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}
