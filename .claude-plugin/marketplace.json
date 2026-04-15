@@ -161,6 +161,21 @@
         "verification",
         "risk-analysis"
       ]
+    },
+    {
+      "name": "friction",
+      "source": "./friction",
+      "description": "Friction mining lifecycle for Total Recall — mining session transcripts, writing v2 stories, extracting moments from Kyle's comments, logging to the knowledge graph, and enriching over time. Encodes quality conventions so future sessions don't need re-teaching.",
+      "version": "0.1.0",
+      "category": "workflow",
+      "tags": [
+        "friction",
+        "mining",
+        "stories",
+        "knowledge-graph",
+        "total-recall",
+        "neurodivergent"
+      ]
     }
   ]
 }
