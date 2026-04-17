@@ -1,0 +1,11 @@
+{
+  "name": "total-recall",
+  "version": "0.1.0",
+  "description": "Front door for Total Recall — Kyle's externalized self-model. Provides skill modes (status, search, ingest, brief) and the /tr-brief cold-start command. Backend at ~/projects/total-recall/.",
+  "author": {
+    "name": "Kyle Tabor",
+    "url": "https://github.com/kyletabor"
+  },
+  "repository": "https://github.com/kyletabor/claude_plugins",
+  "license": "MIT"
+}
