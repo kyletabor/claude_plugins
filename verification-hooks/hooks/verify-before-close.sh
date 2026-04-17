@@ -216,6 +216,16 @@ for ID in $ISSUE_IDS; do
   fi
 done
 
+# ========================================
+# L2: Verifier Registry dispatch (additive, fail-open)
+# Plumbing for future domain-specific verifiers. Empty registry = no-op.
+# Wrapped in `|| true` to match the existing fail-open pattern at line 19.
+# ========================================
+if [ -f "${SCRIPT_DIR}/config/verifiers.json" ] && [ -f "${SCRIPT_DIR}/scripts/dispatch-verifiers.sh" ]; then
+  PLUGIN_ROOT="$SCRIPT_DIR" VERIFICATION_SESSION_ID="$(_extract_session_id "$INPUT")" \
+    bash "${SCRIPT_DIR}/scripts/dispatch-verifiers.sh" "$ISSUE_IDS" || true
+fi
+
 END_MS=$(($(date +%s%N) / 1000000))
 DURATION_MS=$((END_MS - START_MS))
 

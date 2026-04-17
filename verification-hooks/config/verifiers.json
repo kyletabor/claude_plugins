@@ -1,0 +1,4 @@
+{
+  "_comment": "Empty registry. Add domain verifiers only when generic independent-verifier insufficient. Each entry needs its own bead with scope + last-validated date.",
+  "verifiers": []
+}
