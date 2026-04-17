@@ -1,7 +1,7 @@
 {
   "name": "dev-process",
-  "version": "2.2.0",
-  "description": "Structured development pipeline with spec-driven architecture, review gates, independent verification, and agent team coordination. v2.2: adds Phase 5c plugin verification — enforces that plugins actually load in fresh sessions, not just file checks.",
+  "version": "2.3.0",
+  "description": "Structured development pipeline with spec-driven architecture, review gates, independent verification, and agent team coordination. v2.3: adds extensible Verification Suite (config/verification-gates.json + scripts/evaluate-gates.sh) with 3 v1 gates (deps-verified, plugin-installed, pre-mortem-filed) enforced via verify-before-close hook. CAPA-14 resolution.",
   "author": {
     "name": "Kyle Tabor",
     "url": "https://github.com/kyletabor"

@@ -94,8 +94,8 @@
     {
       "name": "dev-process",
       "source": "./dev-process",
-      "description": "Structured development pipeline with spec-driven architecture, review gates, independent verification, and agent team coordination. v2.2: Phase 5c plugin verification",
-      "version": "2.2.0",
+      "description": "Structured development pipeline with spec-driven architecture, review gates, independent verification, and agent team coordination. v2.3: extensible Verification Suite (deps-verified, plugin-installed, pre-mortem-filed gates) enforced by verify-before-close hook",
+      "version": "2.3.0",
       "category": "development",
       "tags": [
         "dev-process",

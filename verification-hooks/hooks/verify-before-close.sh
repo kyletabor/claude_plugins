@@ -132,7 +132,10 @@ for ID in $ISSUE_IDS; do
 done
 
 if $HAS_R_ISSUE; then
-  # Check if a closed GATE: issue exists in this project
+  # Check if a closed GATE: issue exists in this project.
+  # NOTE: Gate 0b (below) adds per-gate evidence checks via the Verification Suite
+  # evaluator. This broad check remains as CAPA-8 backstop: ANY closed GATE satisfies
+  # the original hardcoded enforcement; per-gate evidence is enforced in Gate 0b.
   GATE_CLOSED_COUNT=$(bd list --status=closed 2>/dev/null | grep -c "GATE:" 2>/dev/null || true)
 
   if [ "$GATE_CLOSED_COUNT" -eq 0 ] 2>/dev/null; then
@@ -183,6 +186,49 @@ Then verify dependencies, add VERIFIED: evidence, close the GATE issue, and retr
 EOF
       exit 2
     fi
+  fi
+fi
+
+# ========================================
+# Gate 0b: Verification Suite — evaluator-driven per-gate evidence checks
+# For each closing bead, ask the evaluator which gates apply, then verify each
+# has a closed GATE bead with the required evidence_marker in its notes.
+#
+# Fail-open: if evaluator is missing or errors, this block is skipped silently.
+#            Gate 0 above continues to protect CAPA-8 behavior in that case.
+# ========================================
+EVAL_SCRIPT="$HOME/projects/claude_plugins/dev-process/scripts/evaluate-gates.sh"
+if [ -x "$EVAL_SCRIPT" ]; then
+  MISSING_GATES=""
+  for ID in $ISSUE_IDS; do
+    APPLICABLE=$("$EVAL_SCRIPT" --for-close "$ID" 2>/dev/null | tr '\n' ' ')
+    for gate_id in $APPLICABLE; do
+      [ -z "$gate_id" ] && continue
+      if ! "$EVAL_SCRIPT" --check-evidence "$ID" "$gate_id" 2>/dev/null; then
+        MISSING_GATES="$MISSING_GATES ${ID}:${gate_id}"
+      fi
+    done
+  done
+
+  MISSING_GATES=$(echo "$MISSING_GATES" | sed 's/^ *//' | sed 's/ *$//')
+  if [ -n "$MISSING_GATES" ]; then
+    EVENT=$(jq -nc --arg gates "$MISSING_GATES" --arg cmd "$COMMAND" \
+      '{"gate":"verification_suite","action":"blocked","details":{"missing_gates":$gates,"command":$cmd}}')
+    log_event "$EVENT" "$INPUT"
+    cat >&2 <<EOF
+VERIFICATION SUITE GATE(S) MISSING — cannot close.
+
+Missing (format: closing-bead:required-gate-id):
+  $(echo "$MISSING_GATES" | tr ' ' '\n' | sed 's/^/  - /')
+
+Each required gate needs a CLOSED bead with a title matching the gate registry,
+containing the gate's evidence_marker in its notes. See:
+  $EVAL_SCRIPT --list
+  cat "$HOME/projects/claude_plugins/dev-process/config/verification-gates.json"
+
+Check a specific gate: $EVAL_SCRIPT --check-evidence <closing-bead> <gate-id>
+EOF
+    exit 2
   fi
 fi
 

@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "_comment": "Verification Suite registry. Extensible: new CAPA closures append a gate entry. See ../references/adding-a-gate.md. Consumers: evaluate-gates.sh (this plugin), verify-before-close.sh (verification-hooks plugin), dev-process SKILL.md Phase 1 Step 5 + Phase 2 reviewer.",
+  "gates": [
+    {
+      "id": "deps-verified",
+      "title": "GATE: Dependencies verified at source",
+      "description": "Verify external dependency assumptions against actual library source, not wrapper code.",
+      "trigger": {
+        "type": "spec_section_present",
+        "section": "Dependency Verification",
+        "require_rows": true
+      },
+      "evidence_marker": "VERIFIED:",
+      "acceptance": "Close with VERIFIED: note citing source file paths for each dependency in the spec table.",
+      "source_capa": "CAPA-8",
+      "enabled": true
+    },
+    {
+      "id": "plugin-installed",
+      "title": "GATE: Plugin installed + invoked in fresh tmux",
+      "description": "Plugin loads and invokes in a fresh Claude Code session, not just artifact validation.",
+      "trigger": {
+        "type": "paths_touched",
+        "match": ["~/projects/claude_plugins/", ".claude-plugin/"],
+        "also_check_git_diff": true
+      },
+      "evidence_marker": "SMOKE:",
+      "acceptance": "Fresh tmux session id + /plugin install <name>@kyle-plugins output + skill invocation output cited in VERIFIED note.",
+      "source_capa": "CAPA-14",
+      "enabled": true
+    },
+    {
+      "id": "pre-mortem-filed",
+      "title": "GATE: Pre-mortem filed",
+      "description": "Multi-step autonomous work requires a pre-mortem card with success, failure, assumptions, verification plan.",
+      "trigger": {
+        "type": "bead_type",
+        "issue_types": ["epic"]
+      },
+      "evidence_marker": "PREMORTEM:",
+      "acceptance": "Card at docs/pre-mortem/YYYY-MM-DD-*.md with success criteria + failure narrative + assumptions + verification plan. VERIFIED note cites card path.",
+      "source_capa": "CLAUDE.md-rule-2",
+      "enabled": true
+    }
+  ]
+}

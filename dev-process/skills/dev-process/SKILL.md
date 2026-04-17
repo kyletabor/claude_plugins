@@ -62,6 +62,25 @@ If the feature is greenfield or the approach is unclear, invoke the `brainstormi
 design exploration. Let brainstorming run its full cycle (diverge → converge → decide), then carry the
 chosen approach into the spec below. Skip this if you already have a clear PRD or plan to execute.
 
+### Step 0a-pre: Pre-Mortem (MANDATORY for Epics)
+
+<HARD-GATE>
+If this work is being tracked under an epic bead (`issue_type = "epic"`), the Verification
+Suite requires a `GATE: Pre-mortem filed` bead backed by a real pre-mortem card before
+implementation begins. The `pre-mortem-filed` gate enforces CLAUDE.md rule #2 ("Pre-mortem
+before multi-step work"), which prior dev-process revisions silently omitted.
+</HARD-GATE>
+
+1. Invoke the `pre-mortem` skill. Output a Standard-tier card with success criteria, failure
+   narrative, surfaced assumptions, and a verification plan.
+2. Save it to `docs/pre-mortem/YYYY-MM-DD-<slug>.md` in the project directory.
+3. Create the GATE bead: `bd create --title='GATE: Pre-mortem filed' --description='...'`
+   (or use `evaluate-gates.sh --emit-create pre-mortem-filed`).
+4. Close that GATE with a VERIFIED note containing a `PREMORTEM:` marker pointing at the card:
+   `bd update <id> --notes='VERIFIED: ... | PREMORTEM: <path-to-card>'`.
+
+For non-epic work (single feature, bug fix, chore), skip this step — the gate won't apply.
+
 ### Step 0b: Verify Current State (MANDATORY)
 
 <HARD-GATE>
@@ -215,23 +234,34 @@ After the spec is approved, create a beads issue for EACH requirement/acceptance
 bd create --title='R1: [requirement name]' --description='[acceptance criteria — testable assertion]' --type=feature
 bd create --title='R2: [requirement name]' --description='[acceptance criteria]' --type=feature
 # ... one per requirement
-
-# MANDATORY: Create the dependency verification gate
-bd create --title='GATE: Dependencies verified at source' \
-  --description='Verify all external dependency assumptions against actual library source (node_modules/), not wrapper code. Close with VERIFIED: evidence citing source file paths.' \
-  --type=task --priority=1
 ```
 
-This creates the tracking trail. Every requirement gets a beads issue that must be individually
-verified and closed before the feature can ship. The GATE issue enforces that dependency
-assumptions were checked against real library source — not just our wrapper code. Do NOT skip
-this step.
+Then spawn **all applicable GATE beads** from the Verification Suite registry. The evaluator
+picks which gates apply to THIS spec (e.g. plugin-installed if the spec touches plugin paths,
+pre-mortem-filed if the work is tracked under an epic bead, deps-verified if the spec has a
+populated Dependency Verification section):
+
+```bash
+# Emit bd create commands for every applicable gate, then execute them.
+EVAL=~/projects/claude_plugins/dev-process/scripts/evaluate-gates.sh
+for gate_id in $("$EVAL" --for-spec <path-to-spec.md>); do
+  eval "$("$EVAL" --emit-create "$gate_id")"
+done
+```
+
+The registry lives at `~/projects/claude_plugins/dev-process/config/verification-gates.json`.
+To see all enabled gates: `$EVAL --list`. To add a new one (from a closed CAPA), see
+`~/projects/claude_plugins/dev-process/references/adding-a-gate.md`.
 
 <HARD-GATE>
-The GATE issue is NOT optional. The verify-before-close hook will BLOCK closing any R-prefixed
-requirement issue unless a GATE: issue has been closed with VERIFIED: evidence. If you skip
-creating the GATE issue, you will be blocked at close time. Three separate agents read wrapper
-code instead of library source and missed a critical API — this gate prevents that (CAPA-8).
+GATE beads are NOT optional. `verify-before-close.sh` will BLOCK closing any requirement bead
+whose applicable gates don't have CLOSED GATE beads with the correct evidence_marker in their
+VERIFIED notes. Skipping Step 5 = blocked at close time.
+
+The Verification Suite is the consolidated enforcement for recurring AI-agent failure modes
+(CAPA-8 deps-verified, CAPA-14 plugin-installed, CLAUDE.md-rule-2 pre-mortem-filed, and any
+future gates added when new CAPAs close). Read the registry BEFORE you write R-beads so you
+know what evidence each GATE will demand.
 </HARD-GATE>
 
 ## Phase 2: Spec Review Gate
@@ -251,18 +281,32 @@ Launch a Plan subagent to review the spec:
    referenced in the spec, was the ACTUAL library source (node_modules/pkg/dist/*)
    inspected — not just our wrapper code? Are source file paths cited as evidence?
    If the spec references dependency capabilities without citing library source → REJECT.
+7. VERIFICATION SUITE CHECK (MANDATORY). Run:
+       EVAL=~/projects/claude_plugins/dev-process/scripts/evaluate-gates.sh
+       "$EVAL" --for-spec <spec-path>
+   PASTE the full output into your verdict. For each gate id the evaluator lists,
+   confirm a corresponding GATE bead (open OR closed, matching the gate's registry
+   title exactly) exists in the project. If any applicable gate has no bead, REJECT
+   and name the missing gate(s). A verdict that omits the evaluator output is
+   auto-rejected by the lead — do not skip step 7.
 Output: APPROVE with notes, or REJECT with specific issues."
 ```
 
 If REJECTED: fix the spec and re-review.
-If APPROVED: complete the dependency verification gate before proceeding to Phase 3.
+If APPROVED: close the applicable GATE beads (with their required evidence markers)
+before proceeding to Phase 3. The Dependency Verification section below is the recipe for
+the `deps-verified` gate; other gates have their own close-criteria recorded in the registry
+(run `$EVAL --list` and inspect `verification-gates.json` for each gate's `evidence_marker`
+and `acceptance` string).
 
-### Dependency Verification (Close the GATE Issue)
+### Dependency Verification (Close the `deps-verified` GATE Issue)
 
 <HARD-GATE>
-After spec approval, you MUST close the GATE issue before starting implementation.
-The verify-before-close hook will block closing ANY R-prefixed requirement issue
-until the GATE issue is closed. This is architectural enforcement, not a suggestion.
+If `deps-verified` appeared in the evaluator output, you MUST close its GATE bead with a
+VERIFIED: note citing source paths before starting implementation. The verify-before-close
+hook blocks closing any R-prefixed requirement until every applicable gate has a closed
+GATE bead with the correct evidence_marker. This is architectural enforcement, not a
+suggestion.
 </HARD-GATE>
 
 For each external dependency referenced in the spec:
