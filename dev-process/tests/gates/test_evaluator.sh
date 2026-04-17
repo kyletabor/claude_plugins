@@ -139,13 +139,15 @@ if bd show kyle-dev-infra-jwdp >/dev/null 2>&1; then
   fi
 fi
 
-# --check-evidence for plugin-installed should FAIL (no such GATE closed yet)
-if "$EVAL" --check-evidence kyle-dev-infra-cs8r plugin-installed 2>/dev/null; then
-  echo "FAIL: --check-evidence plugin-installed (should NOT find a closed GATE)"
+# --check-evidence for a definitely-nonexistent gate must return missing.
+# (Using a real gate_id here would be state-dependent: once a GATE is closed
+# with the right evidence marker in any test run, a real gate's check returns 0.)
+if "$EVAL" --check-evidence kyle-dev-infra-cs8r no-such-gate-gibberish 2>/dev/null; then
+  echo "FAIL: --check-evidence for bogus gate should not return 0"
   FAIL=$((FAIL+1))
-  FAILED_CASES+=("--check-evidence plugin-installed false-positive")
+  FAILED_CASES+=("--check-evidence bogus gate false-positive")
 else
-  echo "PASS: --check-evidence plugin-installed correctly returns missing"
+  echo "PASS: --check-evidence bogus gate correctly returns missing"
   PASS=$((PASS+1))
 fi
 

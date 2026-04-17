@@ -294,7 +294,12 @@ _check_evidence() {
   _load_registry
   local gate_json title marker
   gate_json=$(jq -c --arg id "$gate_id" '.gates[] | select(.id == $id)' "$REGISTRY" 2>/dev/null)
-  [ -z "$gate_json" ] && _die_fail_open "unknown gate id: $gate_id"
+  if [ -z "$gate_json" ]; then
+    # Unknown gate: evidence definitively cannot exist. Do NOT fail-open here —
+    # that would silently accept typos as "evidence present". Return missing.
+    _log_event "$(jq -nc --arg g "$gate_id" --arg b "$bead_id" '{"gate":"evaluator","action":"evidence_missing","details":{"reason":"unknown gate id","gate_id":$g,"closing_bead":$b}}' 2>/dev/null || echo '')"
+    return 2
+  fi
   title=$(echo "$gate_json" | jq -r '.title')
   marker=$(echo "$gate_json" | jq -r '.evidence_marker')
 
