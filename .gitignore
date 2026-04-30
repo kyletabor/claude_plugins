@@ -15,3 +15,12 @@ state.json
 
 # Note: .claude-plugin/, agents/, skills/, commands/ ARE tracked
 # This is a plugin repo - those directories are the content
+
+# Tooling state
+.claude/
+.superpowers/
+
+# One-off audit outputs
+audit.html
+plan.html
+verification-hooks-audit-*.html
