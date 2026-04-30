@@ -21,7 +21,7 @@ Trigger with `/capa [what's broken]` or natural language like:
 - "Our process didn't catch this"
 - "Do a retrospective on X"
 
-CAPA records are tracked in a shared SQLite database at `/home/openclaw/.openclaw/capa/capa.db`. Every phase transition is logged to an append-only changelog table.
+CAPA records are tracked in a shared SQLite database at `/mnt/pi-data/capa/capa.db`. Every phase transition is logged to an append-only changelog table.
 
 ## The Eight Phases
 

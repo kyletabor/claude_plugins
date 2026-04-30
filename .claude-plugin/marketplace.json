@@ -180,8 +180,8 @@
     {
       "name": "deploy-standard",
       "source": "./deploy-standard",
-      "description": "Enforces Kyle Deploy Standard v1 — all deployable projects use /opt symlink layout, Docker, /mnt/pi-data bind mounts. Skill + PreToolUse hook.",
-      "version": "1.0.0",
+      "description": "Enforces Kyle Deploy Standard v1 — all deployable projects use /opt symlink layout, Docker, /mnt/pi-data bind mounts. Skill + PreToolUse hook + SessionStart compliance audit.",
+      "version": "1.1.0",
       "category": "development",
       "tags": [
         "deploy",

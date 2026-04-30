@@ -1,5 +1,5 @@
 -- CAPA Database Schema
--- Location: ~/.claude/capa/capa.db
+-- Location: /mnt/pi-data/capa/capa.db
 -- Pattern: Append-only changelog (Ramsey pattern — upsert, never delete)
 
 CREATE TABLE IF NOT EXISTS capa_records (
@@ -123,7 +123,7 @@ SELECT
   rc.category,
   COUNT(*) as occurrence_count,
   GROUP_CONCAT(DISTINCT rc.skill_that_failed) as skills_involved,
-  GROUP_CONCAT(DISTINCT r.title, ' | ') as capa_titles
+  GROUP_CONCAT(DISTINCT r.title) as capa_titles
 FROM root_causes rc
 JOIN capa_records r ON r.id = rc.capa_id
 GROUP BY rc.category

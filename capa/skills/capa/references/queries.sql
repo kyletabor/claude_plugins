@@ -1,32 +1,32 @@
 -- CAPA Database Quick Queries
--- Usage: sqlite3 ~/.claude/capa/capa.db < query.sql
--- Or inline: sqlite3 ~/.claude/capa/capa.db "SELECT ..."
+-- Usage: sqlite3 /mnt/pi-data/capa/capa.db < query.sql
+-- Or inline: sqlite3 /mnt/pi-data/capa/capa.db "SELECT ..."
 
 -- ============================================================
 -- LISTING & STATUS
 -- ============================================================
 
 -- List all CAPAs (most recent first)
--- sqlite3 -header -column ~/.claude/capa/capa.db "SELECT * FROM capa_summary"
+-- sqlite3 -header -column /mnt/pi-data/capa/capa.db "SELECT * FROM capa_summary"
 
 -- Open CAPAs only
--- sqlite3 -header -column ~/.claude/capa/capa.db "SELECT * FROM capa_summary WHERE status != 'closed'"
+-- sqlite3 -header -column /mnt/pi-data/capa/capa.db "SELECT * FROM capa_summary WHERE status != 'closed'"
 
 -- ============================================================
 -- STATISTICS
 -- ============================================================
 
 -- Category breakdown
--- sqlite3 -header -column ~/.claude/capa/capa.db "SELECT * FROM category_stats"
+-- sqlite3 -header -column /mnt/pi-data/capa/capa.db "SELECT * FROM category_stats"
 
 -- Recurring root cause patterns (shows which failures keep happening)
--- sqlite3 -header -column ~/.claude/capa/capa.db "SELECT * FROM recurring_patterns"
+-- sqlite3 -header -column /mnt/pi-data/capa/capa.db "SELECT * FROM recurring_patterns"
 
 -- Effectiveness of process changes
--- sqlite3 -header -column ~/.claude/capa/capa.db "SELECT * FROM effectiveness"
+-- sqlite3 -header -column /mnt/pi-data/capa/capa.db "SELECT * FROM effectiveness"
 
 -- Overall stats
--- sqlite3 -header -column ~/.claude/capa/capa.db "
+-- sqlite3 -header -column /mnt/pi-data/capa/capa.db "
 --   SELECT
 --     COUNT(*) as total_capas,
 --     SUM(CASE WHEN status = 'closed' THEN 1 ELSE 0 END) as closed,
@@ -43,14 +43,14 @@
 -- ============================================================
 
 -- Most common root cause categories across all CAPAs
--- sqlite3 -header -column ~/.claude/capa/capa.db "
+-- sqlite3 -header -column /mnt/pi-data/capa/capa.db "
 --   SELECT category, COUNT(*) as count,
 --     GROUP_CONCAT(DISTINCT skill_that_failed) as failed_skills
 --   FROM root_causes GROUP BY category ORDER BY count DESC
 -- "
 
 -- Skills that fail most often (which skills aren't working?)
--- sqlite3 -header -column ~/.claude/capa/capa.db "
+-- sqlite3 -header -column /mnt/pi-data/capa/capa.db "
 --   SELECT skill_that_failed, COUNT(*) as fail_count,
 --     GROUP_CONCAT(DISTINCT category) as failure_modes
 --   FROM root_causes
@@ -59,7 +59,7 @@
 -- "
 
 -- Full root cause detail for a specific CAPA
--- sqlite3 -header -column ~/.claude/capa/capa.db "
+-- sqlite3 -header -column /mnt/pi-data/capa/capa.db "
 --   SELECT rc.*, r.title as capa_title
 --   FROM root_causes rc JOIN capa_records r ON r.id = rc.capa_id
 --   WHERE rc.capa_id = ?
@@ -70,7 +70,7 @@
 -- ============================================================
 
 -- Applied vs unapplied research findings
--- sqlite3 -header -column ~/.claude/capa/capa.db "
+-- sqlite3 -header -column /mnt/pi-data/capa/capa.db "
 --   SELECT source_type, COUNT(*) as total,
 --     SUM(applied) as applied, SUM(1-applied) as not_applied
 --   FROM research_findings GROUP BY source_type
@@ -81,12 +81,12 @@
 -- ============================================================
 
 -- Full changelog for a CAPA
--- sqlite3 -header -column ~/.claude/capa/capa.db "
+-- sqlite3 -header -column /mnt/pi-data/capa/capa.db "
 --   SELECT * FROM changelog WHERE capa_id = ? ORDER BY timestamp
 -- "
 
 -- Recent activity across all CAPAs
--- sqlite3 -header -column ~/.claude/capa/capa.db "
+-- sqlite3 -header -column /mnt/pi-data/capa/capa.db "
 --   SELECT c.*, r.title FROM changelog c
 --   LEFT JOIN capa_records r ON r.id = c.capa_id
 --   ORDER BY c.timestamp DESC LIMIT 20

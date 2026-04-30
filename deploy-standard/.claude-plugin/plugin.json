@@ -1,6 +1,6 @@
 {
   "name": "deploy-standard",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Enforces Kyle Deploy Standard v1 — all deployable projects use /opt symlink layout, Docker, /mnt/pi-data bind mounts.",
   "author": {
     "name": "Kyle Tabor",

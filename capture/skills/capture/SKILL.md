@@ -22,6 +22,18 @@ allowed-tools:
 
 Capture a task, bookmark, idea, follow-up, or research item to the personal inbox with zero friction.
 
+## What belongs here vs elsewhere
+
+| Content | Go to |
+|---------|-------|
+| Fleeting thought, bookmark, idea, "remind me later" | **capture-mcp** (this skill) — one line is fine |
+| Kyle said "that was friction" — something annoying/broken in how we worked | **capture-mcp** with `friction` tag, then later promote to `friction-graph.db` |
+| A skill/gate/process **failed to fire** when it should have | **CAPA** — invoke `/capa`, not capture |
+| Same failure pattern recurring, or "done" claimed but doesn't work | **CAPA** — invoke `/capa` |
+| Engineering task with dependencies or multi-session work | **beads** — `bd create` |
+
+**Keep captures short.** One-line capture is the goal. If you catch yourself writing a multi-paragraph "root cause / steps to fix" block inside a capture, that's CAPA-shaped content — stop and invoke `/capa` instead. Captures are the inbox, not the investigation.
+
 ## Capture Flow
 
 1. Take the user's raw text (from args or message)

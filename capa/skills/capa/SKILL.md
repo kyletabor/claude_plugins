@@ -27,36 +27,38 @@ THEN USE THE FIXED PROCESS TO FIX THE DEFECT.
 If you fix the defect before fixing the process, you lose leverage to fix the root cause.
 The defect fix is the PROOF the process works — not the primary deliverable.
 
+## Is this a CAPA? — Triage BEFORE opening a record
+
+Not every annoyance is a CAPA. Use this bright line:
+
+| Signal | Route |
+|--------|-------|
+| A skill/gate/process **failed to fire** when it should have | **CAPA** — open a record |
+| Same failure pattern has happened **before** | **CAPA** — open a record |
+| "Done" was claimed but **doesn't work** | **CAPA** — open a record |
+| Annoyance, one-off bug, slow-loading UI, small paper-cut | **Friction** → capture-mcp or friction-graph |
+| Kyle said "that was friction" or "log this for later" | **Friction** → capture-mcp |
+| Idea, follow-up, bookmark, todo | **capture-mcp** (not a CAPA) |
+
+If in doubt, ask: *"Did a skill fail to do its job?"* If no, it's friction. Don't inflate friction into CAPA — that's how the `recurring_patterns` view gets useless.
+
 ## Database
 
-CAPA records are tracked in a shared SQLite DB accessible from BOTH environments:
+**Canonical path:** `/mnt/pi-data/capa/capa.db` (host-persistent, nightly-backed-up, no permission prompts)
 
-**Canonical path (in container):** `/home/openclaw/.openclaw/capa/capa.db`
-
-**Access from Claude Code (host):**
 ```bash
-docker exec openclaw-playground sqlite3 /home/openclaw/.openclaw/capa/capa.db "YOUR QUERY"
+CAPA_DB="sqlite3 /mnt/pi-data/capa/capa.db"
+$CAPA_DB "YOUR QUERY"
 ```
 
-**Access from OpenClaw (container):**
+Schema is in `references/schema.sql`. The DB is initialized; don't recreate it. If it is ever lost, restore from `gdrive:orangepi-claude-backup/pi-data/capa/` or re-init with:
 ```bash
-sqlite3 /home/openclaw/.openclaw/capa/capa.db "YOUR QUERY"
-```
-
-Schema is in `references/schema.sql`. Initialize if it doesn't exist:
-```bash
-# From host:
-docker cp references/schema.sql openclaw-playground:/tmp/capa-schema.sql
-docker exec -u openclaw openclaw-playground bash -c "cat /tmp/capa-schema.sql | sqlite3 /home/openclaw/.openclaw/capa/capa.db"
-# From container:
-cat references/schema.sql | sqlite3 /home/openclaw/.openclaw/capa/capa.db
+cat references/schema.sql | sqlite3 /mnt/pi-data/capa/capa.db
 ```
 
 Log every phase transition to the `changelog` table. This is append-only — never delete rows.
 
-**IMPORTANT:** Use the `CAPA_DB` helper variable throughout this skill. Set it at the start:
-- Claude Code: `CAPA_DB="docker exec openclaw-playground sqlite3 /home/openclaw/.openclaw/capa/capa.db"`
-- OpenClaw: `CAPA_DB="sqlite3 /home/openclaw/.openclaw/capa/capa.db"`
+**DO NOT** use `~/.claude/capa/` — that path triggers permission prompts and is not backed up cleanly. It is the Claude Code config dir, not a data dir.
 
 ## The Eight Phases
 
@@ -80,7 +82,7 @@ Phase 8: CLOSE <── Phase 7: RE-EXECUTE <── Phase 6: VERIFY <── Phase
 
 2. **Create CAPA record:**
    ```bash
-   sqlite3 ~/.claude/capa/capa.db "
+   sqlite3 /mnt/pi-data/capa/capa.db "
      INSERT INTO capa_records (title, trigger_description, status, severity)
      VALUES ('[short title]', '[full description]', 'open', '[critical|high|medium|low]');
    "
@@ -88,7 +90,7 @@ Phase 8: CLOSE <── Phase 7: RE-EXECUTE <── Phase 6: VERIFY <── Phase
 
 3. **Log to changelog:**
    ```bash
-   sqlite3 ~/.claude/capa/capa.db "
+   sqlite3 /mnt/pi-data/capa/capa.db "
      INSERT INTO changelog (capa_id, phase, action, details)
      VALUES ([id], 'detect', 'CAPA opened', '[summary]');
    "
@@ -118,7 +120,7 @@ STOP and return to tracing the failure chain.
 
 3. **Categorize root causes** and log them:
    ```bash
-   sqlite3 ~/.claude/capa/capa.db "
+   sqlite3 /mnt/pi-data/capa/capa.db "
      INSERT INTO root_causes (capa_id, description, skill_that_failed, why_it_failed, category)
      VALUES ([id], '[description]', '[skill name]', '[why]', '[category]');
    "
@@ -130,12 +132,12 @@ STOP and return to tracing the failure chain.
 
 4. **Check for patterns** — has this root cause appeared before?
    ```bash
-   sqlite3 -header -column ~/.claude/capa/capa.db "SELECT * FROM recurring_patterns"
+   sqlite3 -header -column /mnt/pi-data/capa/capa.db "SELECT * FROM recurring_patterns"
    ```
 
 5. **Update status:**
    ```bash
-   sqlite3 ~/.claude/capa/capa.db "UPDATE capa_records SET status='investigating', category='[primary category]' WHERE id=[id]"
+   sqlite3 /mnt/pi-data/capa/capa.db "UPDATE capa_records SET status='investigating', category='[primary category]' WHERE id=[id]"
    ```
 
 **Output:** Root cause map with skill-to-failure mapping. Present to user before proceeding.
@@ -160,7 +162,7 @@ STOP and return to tracing the failure chain.
 
 3. **Log findings:**
    ```bash
-   sqlite3 ~/.claude/capa/capa.db "
+   sqlite3 /mnt/pi-data/capa/capa.db "
      INSERT INTO research_findings (capa_id, source_type, finding, citation)
      VALUES ([id], '[perplexity|github|memory|article|previous_capa|skill_review]',
              '[finding]', '[url or reference]');
@@ -169,7 +171,7 @@ STOP and return to tracing the failure chain.
 
 4. **Update status:**
    ```bash
-   sqlite3 ~/.claude/capa/capa.db "UPDATE capa_records SET status='researching' WHERE id=[id]"
+   sqlite3 /mnt/pi-data/capa/capa.db "UPDATE capa_records SET status='researching' WHERE id=[id]"
    ```
 
 **Output:** Research findings with citations. Synthesize into 3-5 actionable insights.
@@ -196,7 +198,7 @@ STOP and return to tracing the failure chain.
 
 4. **Update status:**
    ```bash
-   sqlite3 ~/.claude/capa/capa.db "UPDATE capa_records SET status='designing' WHERE id=[id]"
+   sqlite3 /mnt/pi-data/capa/capa.db "UPDATE capa_records SET status='designing' WHERE id=[id]"
    ```
 
 <HARD-GATE>
@@ -219,7 +221,7 @@ Do NOT implement process changes without Kyle's approval on the design.
 
 2. **Log each change:**
    ```bash
-   sqlite3 ~/.claude/capa/capa.db "
+   sqlite3 /mnt/pi-data/capa/capa.db "
      INSERT INTO process_changes (capa_id, change_type, description, files_changed)
      VALUES ([id], '[new_skill|modified_skill|new_gate|new_enforcement|config_change]',
              '[what changed]', '[\"file1.md\", \"file2.md\"]');
@@ -228,7 +230,7 @@ Do NOT implement process changes without Kyle's approval on the design.
 
 3. **Update status:**
    ```bash
-   sqlite3 ~/.claude/capa/capa.db "UPDATE capa_records SET status='implementing' WHERE id=[id]"
+   sqlite3 /mnt/pi-data/capa/capa.db "UPDATE capa_records SET status='implementing' WHERE id=[id]"
    ```
 
 **Output:** Working process changes, committed if applicable.
@@ -251,12 +253,12 @@ Do NOT implement process changes without Kyle's approval on the design.
 
 3. **Mark changes as verified:**
    ```bash
-   sqlite3 ~/.claude/capa/capa.db "UPDATE process_changes SET verified=1 WHERE capa_id=[id]"
+   sqlite3 /mnt/pi-data/capa/capa.db "UPDATE process_changes SET verified=1 WHERE capa_id=[id]"
    ```
 
 4. **Update status:**
    ```bash
-   sqlite3 ~/.claude/capa/capa.db "
+   sqlite3 /mnt/pi-data/capa/capa.db "
      UPDATE capa_records SET status='verifying', process_fixed=1 WHERE id=[id]
    "
    ```
@@ -281,7 +283,7 @@ Do NOT implement process changes without Kyle's approval on the design.
 
 3. **Update status:**
    ```bash
-   sqlite3 ~/.claude/capa/capa.db "UPDATE capa_records SET status='re-executing' WHERE id=[id]"
+   sqlite3 /mnt/pi-data/capa/capa.db "UPDATE capa_records SET status='re-executing' WHERE id=[id]"
    ```
 
 **Output:** The original defect, fixed correctly using the new process.
@@ -294,7 +296,7 @@ Do NOT implement process changes without Kyle's approval on the design.
 
 1. **Update CAPA record:**
    ```bash
-   sqlite3 ~/.claude/capa/capa.db "
+   sqlite3 /mnt/pi-data/capa/capa.db "
      UPDATE capa_records SET
        status='closed',
        closed_at=datetime('now'),
@@ -306,7 +308,7 @@ Do NOT implement process changes without Kyle's approval on the design.
 
 2. **Final changelog entry:**
    ```bash
-   sqlite3 ~/.claude/capa/capa.db "
+   sqlite3 /mnt/pi-data/capa/capa.db "
      INSERT INTO changelog (capa_id, phase, action, details)
      VALUES ([id], 'close', 'CAPA closed', '[lessons learned summary]');
    "
@@ -318,8 +320,8 @@ Do NOT implement process changes without Kyle's approval on the design.
 
 4. **Check stats** — how are we trending?
    ```bash
-   sqlite3 -header -column ~/.claude/capa/capa.db "SELECT * FROM category_stats"
-   sqlite3 -header -column ~/.claude/capa/capa.db "SELECT * FROM recurring_patterns"
+   sqlite3 -header -column /mnt/pi-data/capa/capa.db "SELECT * FROM category_stats"
+   sqlite3 -header -column /mnt/pi-data/capa/capa.db "SELECT * FROM recurring_patterns"
    ```
 
 **Output:** Closed CAPA record. Brief summary to Kyle.
@@ -341,17 +343,17 @@ Do NOT implement process changes without Kyle's approval on the design.
 
 Check open CAPAs:
 ```bash
-sqlite3 -header -column ~/.claude/capa/capa.db "SELECT * FROM capa_summary WHERE status != 'closed'"
+sqlite3 -header -column /mnt/pi-data/capa/capa.db "SELECT * FROM capa_summary WHERE status != 'closed'"
 ```
 
 Check recurring patterns:
 ```bash
-sqlite3 -header -column ~/.claude/capa/capa.db "SELECT * FROM recurring_patterns"
+sqlite3 -header -column /mnt/pi-data/capa/capa.db "SELECT * FROM recurring_patterns"
 ```
 
 Full stats:
 ```bash
-sqlite3 -header -column ~/.claude/capa/capa.db "
+sqlite3 -header -column /mnt/pi-data/capa/capa.db "
   SELECT COUNT(*) as total,
     SUM(CASE WHEN status='closed' THEN 1 ELSE 0 END) as closed,
     SUM(CASE WHEN process_fixed THEN 1 ELSE 0 END) as process_fixed,
@@ -362,7 +364,7 @@ sqlite3 -header -column ~/.claude/capa/capa.db "
 
 Which skills fail most:
 ```bash
-sqlite3 -header -column ~/.claude/capa/capa.db "
+sqlite3 -header -column /mnt/pi-data/capa/capa.db "
   SELECT skill_that_failed, COUNT(*) as fails
   FROM root_causes WHERE skill_that_failed IS NOT NULL
   GROUP BY skill_that_failed ORDER BY fails DESC

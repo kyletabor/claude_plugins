@@ -42,6 +42,30 @@
       "acceptance": "Card at docs/pre-mortem/YYYY-MM-DD-*.md with success criteria + failure narrative + assumptions + verification plan. VERIFIED note cites card path.",
       "source_capa": "CLAUDE.md-rule-2",
       "enabled": true
+    },
+    {
+      "id": "staging-env-exists",
+      "title": "GATE: Staging env exists for deployed services touched",
+      "description": "Work that touches a deployed service's prod URL or persistent data path must have been verified against a STAGING environment, not prod. Prevents the CAPA-15 incident class: destructive tests hardcoded to prod URLs, no env-var guard, no staging fallback.",
+      "trigger": {
+        "type": "paths_touched",
+        "match": [
+          "127.0.0.1:3521",
+          "127.0.0.1:3500",
+          "127.0.0.1:7474",
+          "orangepi5plus.tail0eed64.ts.net:3521",
+          "orangepi5plus.tail0eed64.ts.net:3500",
+          "orangepi5plus.tail0eed64.ts.net:7474",
+          "/mnt/pi-data/excalidraw/",
+          "/mnt/pi-data/treehouse/prod/",
+          "/mnt/pi-data/total-recall/"
+        ],
+        "also_check_git_diff": true
+      },
+      "evidence_marker": "STAGING-VERIFIED:",
+      "acceptance": "Close GATE bead with STAGING-VERIFIED: note citing (a) the staging URL the work was tested against (e.g., orangepi5plus.tail0eed64.ts.net:3510 for treehouse-staging) AND (b) curl /healthz response body OR equivalent probe output proving the staging service was exercised, NOT prod.",
+      "source_capa": "CAPA-15",
+      "enabled": true
     }
   ]
 }

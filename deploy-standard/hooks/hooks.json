@@ -1,5 +1,5 @@
 {
-  "description": "Deploy Standard v1 enforcement — blocks writes to /opt/<project>/current, /etc/systemd/system, cp/mv/rsync into /opt, and `docker compose up` outside the deploy tool",
+  "description": "Deploy Standard v1 enforcement — blocks writes to /opt/<project>/current, /etc/systemd/system, cp/mv/rsync into /opt, and `docker compose up` outside the deploy tool. SessionStart audit surfaces non-compliant deployed services (CAPA-15).",
   "hooks": {
     "PreToolUse": [
       {
@@ -9,6 +9,17 @@
             "type": "command",
             "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/pre-tool-use.sh",
             "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh",
+            "timeout": 2
           }
         ]
       }
