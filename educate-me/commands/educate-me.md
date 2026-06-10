@@ -73,6 +73,7 @@ After all concepts are covered:
 - **Key vocabulary**: List the 5-10 most important terms they learned with one-line definitions
 - **Next steps**: What to explore next if they want to go deeper
 - **Practical application**: One concrete thing they can go do right now with this knowledge
+- **Standalone deep-dive docs for important sub-topics.** When a sub-topic genuinely deserves its own page (deserves more than a paragraph because it's a meaningful design choice or a stand-alone concept), create a dedicated educate-me doc for it rather than burying it inside the parent doc. Link it from the parent. The user should be able to find dedicated material on each meaningful sub-topic without diving back into related material.
 
 ## Teaching Principles (ALWAYS follow these)
 
@@ -86,6 +87,8 @@ After all concepts are covered:
 8. **Brief over verbose.** Respect the user's attention. 3-5 items in any list. Collapse details.
 9. **Motivate before teaching.** Always say WHY something matters before explaining WHAT it is.
 10. **Direct and honest.** If something is hard, say so. If something is simple, don't over-complicate it.
+11. **Explicit "should I care?" signal for every named method or model.** When introducing any specific technical method, model name, framework, or implementation choice (e.g., "BERT-based DPR," "multi-qa-mpnet-base-cos-v1," "FAISS," "Leiden algorithm"), give the user a one-line ELI5, name 2-3 alternatives in the same category, then explicitly tell them whether this is (a) load-bearing for the current work, (b) worth coming back to later, or (c) safe to ignore. The user will not know which mentions are essential vs rabbit-hole without this signal.
+    - Kyle's verbatim phrasing of why this matters: *"Whenever a specific method is listed, I'm assuming it's important. I'd like to understand more about this and what is the spectrum of other options that can be used in its place. Don't let this be a rabbit hole, but let me know if this is something I should know or care about."*
 
 ## ADHD-Friendly Adaptations
 

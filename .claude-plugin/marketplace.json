@@ -39,7 +39,7 @@
       "name": "educate-me",
       "source": "./educate-me",
       "description": "Empathetic 1-on-1 tutor that teaches any subject using a structured MECE framework",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "category": "learning",
       "tags": [
         "tutor",
