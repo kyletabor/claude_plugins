@@ -1,7 +1,7 @@
 {
   "name": "verification-hooks",
-  "version": "1.4.0",
-  "description": "Independent work verification gates for Claude Code — enforces verification at task boundaries via hooks",
+  "version": "1.5.0",
+  "description": "Independent work verification gates for Claude Code \u2014 enforces verification at task boundaries via hooks",
   "author": {
     "name": "Kyle Tabor",
     "url": "https://github.com/kyletabor"

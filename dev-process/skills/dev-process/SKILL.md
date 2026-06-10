@@ -7,6 +7,9 @@ description: |
   explicitly told to use it — if the task involves architecture, multiple files, agent teams, or a plan
   to execute, USE THIS SKILL.
 
+  FIRST it RIGHT-SIZES the task (Phase 0): small/reversible work takes a fast lane; only large or
+  high-risk work runs the full pipeline. Minimum process that fits — never maximum-by-default.
+
   This skill orchestrates sub-skills — do NOT use them independently for implementation work:
   - `brainstorming` — design exploration (Phase 1)
   - `test-driven-development` — TDD per requirement (Phase 3)
@@ -33,24 +36,76 @@ description: |
 
 Spec-driven, gate-reviewed development pipeline for rigorous implementation.
 
-## When to Use
+> **Core principle (READ THIS FIRST): run the *minimum* process that fits the task, not the maximum.**
+> The old version of this skill applied the full 6-phase, 7-agent pipeline to every change — a typo got
+> the same treatment as a payment system. That is the documented cause of a 180M-token blowup. Rigor is
+> spent where a bug actually hurts; small, reversible, internal work gets a fast lane. **You ALWAYS
+> right-size first (Phase 0). You NEVER skip the gates that catch real risk.**
 
-- Multi-file features or fixes
-- Work that needs architecture before coding
-- Changes requiring security or compliance review
-- Any work where "just code it" leads to rework
+## Phase 0: Right-Size First (MANDATORY — ALWAYS the first step)
 
-## When NOT to Use
+Before any exploration, spec, or sub-agent, classify the task on two axes and pick the lightest lane.
+This is a 15-second decision, stated in one line in the conversation (e.g. *"Tier S — 2 files, reversible,
+no risk triggers → fast lane"*). Default to the SMALLEST tier; **risk triggers can only escalate, never lower.**
 
-- Single-file bug fixes
-- Quick config changes
-- Pure research/exploration tasks
+### Axis 1 — Size
+- **Small**: 1–2 files, reversible, an obvious/local change, a bugfix with a known cause.
+- **Medium**: several files, moderate logic, a new internal module or multi-file refactor.
+- **Large**: an epic, novel architecture, or many interdependent legs.
 
-## The Pipeline
+### Axis 2 — Risk triggers (if ANY are true, the task is at LEAST Tier M and full verification fires)
+1. Touches a **prod URL / deployed service**
+2. Touches **persistent or destructive data**
+3. Touches **auth · permissions · secrets**
+4. Touches **money / billing**
+5. **Ships a Claude Code plugin**
+6. **User-facing UI behavior**
+
+### The lanes
+
+| Tier | When | Process that runs | Sub-agents |
+|------|------|-------------------|------------|
+| **S — Fast lane** | Small AND zero risk triggers | Micro pre-mortem (1 line) → implement → **machine gate** (tests + build + types pass) → self-check (`verification-before-completion`) → commit. NO spec doc, NO explore swarm, NO separate reviewers, NO independent-verifier. | 0–1 |
+| **M — Spec-lite** | Medium, OR Small+a risk trigger | Light pre-mortem → short inline spec (goal · files · acceptance) → TDD → machine gate → **one** combined review → risk-typed verification (see Phase 5). | 1–3 |
+| **L — Full pipeline** | Large, epic, or high blast-radius | The full Phase 1→6 below, unchanged. Full pre-mortem card + GATE beads + independent verification + staging gate. | 5–8+ |
+
+**Then jump to the matching lane.** Tier S/M execute the lightweight steps above and skip to Phase 5's
+risk-typed verification + Phase 6 ship. Only **Tier L** runs the complete Phase 1–6 pipeline that follows.
+
+### Resource budget (applies to every tier — prevents runaway token cost)
+- **Fan-out ceiling**: Tier S = 0 explore agents, Tier M = 0–1, Tier L = up to 3. Never a fixed floor.
+- **Agent turn caps**: soft cap ~15 turns (agent summarizes + presents stop/continue), hard cap ~30 (terminate with a state summary). Cap any fix→re-review loop at **2** iterations.
+- **Pass digests, not transcripts**: each sub-agent gets a pre-scoped task (relevant spec section + file paths) and returns a 1–2k-token summary. Never "read the whole spec and codebase."
+- **Loop detection**: if a step produces no diff / the same test failure twice / a repeated re-plan → abort and surface it, don't grind.
+- **Model/effort awareness**: on Opus (high reliability, no token pressure) the full fan-out is affordable. On Fable / `ultracode`, HARD-cap fan-out to 2–4 workers, prefer a single long-running agent over a swarm, and do not stack redundant verification. Right-size effort = f(tier × model).
+
+### Pre-mortem is ALWAYS done — its depth right-sizes
+A pre-mortem is always worth 30 seconds of "how could this go wrong." Scale the rigor, never skip it:
+**Micro** (Tier S, 1 line of risks) · **Light** (Tier M, inline) · **Full card** (Tier L/epic, the GATE bead). See the `pre-mortem` skill.
+
+## When NOT to use this skill at all
+- Pure research/exploration or a question (no code change).
+- A one-character/one-line edit you can make and verify in a single step (just do it + run the test).
+
+## The Tier-L Pipeline (everything below applies to Tier L; Tier S/M use the lanes above)
 
 ```
 Phase 1: Spec → Phase 2: Spec Review → Phase 3: Implement → Phase 4: Code Review → Phase 5: Test → Phase 6: Verdict
 ```
+
+### Optional: run the Tier-L pipeline as a bounded workflow (deterministic engine)
+
+For Tier-L work you MAY execute the phases below as a single **bounded workflow** instead of hand-orchestrating
+them. It ships with this plugin and enforces fixed fan-out, turn-capped agents, and compact summary handoffs —
+the structure that prevents token blowups:
+
+> `Workflow({ scriptPath: "<plugin-root>/workflows/dev-process-pipeline.js", args: { task: "<what to build>", repo: "<path>", appUrl: "<url if user-facing>", userFacing: true } })`
+
+The plugin root is two levels up from this skill's "Base directory" line (`.../dev-process/`).
+
+**Status: v1 — not yet the default.** Until it's battle-tested on a real epic, the hand-orchestrated phases
+below remain the proven path. Use the workflow when you want deterministic, capped orchestration; otherwise
+follow the inline phases. The phase contracts are identical either way.
 
 ## Phase 1: Architecture Spec
 
@@ -110,7 +165,9 @@ Read and extract requirements from the source (PRD, epic, issue, or user request
 
 ### Step 2: Explore Codebase (Parallel Subagents)
 
-Launch 3 Explore subagents in parallel using the Task tool:
+**Fan-out is tier-sized (Phase 0): Tier S launches none, Tier M 0–1, Tier L up to 3 — and only when the
+codebase is genuinely unfamiliar. This is a ceiling, not a floor.** When exploration is warranted, launch
+up to 3 Explore subagents in parallel using the Task tool:
 
 ```
 Task 1 - Pattern Discovery:
@@ -408,58 +465,69 @@ Severity: [CRITICAL: X, HIGH: X, MEDIUM: X, LOW: X]"
 If REJECTED: fix issues and re-review.
 If APPROVED: proceed to Phase 5.
 
-## Phase 5: Testing + Independent Verification
+## Phase 5: Testing + Verification (RIGHT-SIZED TO WHAT CHANGED)
 
-**Invoke the `verification-before-completion` skill** to enforce this entire phase. Do not skip it
-or claim verification happened without running through the skill's checklist.
+**Invoke the `verification-before-completion` skill** to wrap this phase. The KEY rule: **verification
+scales to what you're verifying.** You don't drive a browser to check a backend refactor, and you don't
+trust unit tests alone for a UI feature. Pick the mode(s) that match the change — a change can need more
+than one.
 
-### 5a: Run Tests (Builder)
+### 5a: Run Tests (Builder — every tier)
 
-1. **Unit tests**: Run the full test suite — report BEFORE and AFTER counts
-   (e.g., "was 118, now 130" — if count didn't increase, new tests weren't added or aren't running)
-2. **Integration tests**: If applicable
-3. **Regression check**: Ensure existing functionality isn't broken
+1. **Unit tests**: Run the full suite — report BEFORE and AFTER counts (e.g. "was 118, now 130"; if the count didn't increase, new tests aren't there or aren't running).
+2. **Build + types**: must pass clean.
+3. **Regression check**: existing functionality isn't broken.
 
-### 5b: Independent Verification (NOT the Builder)
+This is the **machine gate**. For **Tier S with no risk triggers, a green machine gate + the
+`verification-before-completion` self-check is sufficient — STOP HERE.** No separate verifier agent.
+
+### 5b: Independent Verification — fires for Tier M/L or ANY risk trigger (NOT for clean Tier S)
 
 <HARD-GATE>
-The agent who built it CANNOT verify it. This is non-negotiable.
-In 5 out of 5 recent incidents, self-certification led to shipping broken features.
+When independent verification applies, the agent who built it CANNOT be the one who certifies it.
+Self-certification shipped broken features in 5 out of 5 past incidents. This is non-negotiable
+**for the work that qualifies** — but it is sized to the change, per below. A clean Tier-S change
+verified by a green machine gate does NOT need a separate agent.
 </HARD-GATE>
 
-Spawn a **separate verification agent** (use the `independent-verifier` agent if available,
-or launch a fresh Agent with read-only + Playwright access):
+Choose the verification mode by what changed:
 
+**A) User-facing change (UI / user workflow) → Independent UI verification.**
+Spawn the `independent-verifier` agent (read-only + Playwright). It drives the REAL app the way the user
+does and checks each acceptance criterion from the user's perspective, with screenshots:
 ```
-"Verify this feature works from the USER's perspective.
-
-Spec: [path to spec with acceptance criteria]
-App URL: [the URL the user actually uses]
-
-For EACH acceptance criterion in the spec:
-1. Load the app the way the user loads it (not a test harness)
-2. Perform the user action described
-3. Check the observable result matches the criterion
-4. Take a screenshot as evidence
-
-Report:
-| Acceptance Criterion | Result | Evidence |
-|---------------------|--------|----------|
-| [criterion] | PASS/FAIL | [screenshot or DOM check] |
-
-You have NO access to edit code. You can only read, browse, and report.
-If ANY criterion fails, report FAIL — do not attempt to fix."
+"Verify this feature from the USER's perspective.
+Spec: [path]   App URL: [the URL the user actually uses]
+For EACH acceptance criterion: load the app like the user does, perform the action, check the observable
+result, screenshot it. Report a PASS/FAIL table with evidence. You CANNOT edit code — only observe and report."
 ```
 
-The independent verifier also updates beads as it verifies each requirement:
+**B) Backend-only change (logic / API / data / no UI) → Independent integration verification.**
+A browser proves nothing here. Instead, a **separate agent (not the builder)** runs and inspects
+**unit + integration/workflow tests that simulate the real end-to-end flow against real data (not mocks)**
+— proving the pieces actually work together, not just in isolation:
+```
+"Independently verify this backend change. Do NOT trust the builder's claims.
+Spec/acceptance: [path or list].
+1. Run the unit suite + the integration test(s) that exercise the REAL flow this change participates in.
+2. If an integration/workflow test for this path doesn't exist, write or run one that simulates it end-to-end
+   (real inputs → real outputs), then confirm it passes.
+3. Check the change actually satisfies each acceptance criterion. Report PASS/FAIL with the command output as evidence.
+You CANNOT ship — only run, inspect, and report."
+```
+For lower-risk Tier-M backend work, the integration test passing IS the verification (the deterministic
+result is the evidence); reserve the separate-agent pass for backend changes that hit a risk trigger
+(auth, data, money, deployed service).
 
+**C) Both UI and backend → do both A and B.**
+
+The verifier updates beads as it confirms each requirement:
 ```bash
-# For each verified requirement:
-bd close <id> --reason='Verified: [evidence description — screenshot path or DOM assertion result]'
+bd close <id> --reason='Verified: [evidence — screenshot path, DOM assertion, or integration-test output]'
 ```
 
-If the verifier reports FAIL → return to Phase 3 with the failure details.
-If the verifier reports PASS → proceed to Phase 5c (if plugin work) or Phase 6.
+If verification FAILS → return to Phase 3 with the details (cap the fix→re-verify loop at 2).
+If it PASSES → proceed to Phase 5c (if plugin work) or Phase 6.
 
 ### 5c: Plugin Verification (If Work Involves Plugins)
 
@@ -548,9 +616,9 @@ If any NO:
 
 ## Tips
 
-- **Don't skip gates** even when it feels like overkill — the 10 minutes saved by skipping review costs hours of rework
-- **Spec changes during implementation** are OK but must be documented and re-reviewed
-- **Small scope** is better — break large features into multiple dev-process cycles
+- **Right-size first, then don't skip the gates that apply to that tier** — skipping a Tier-L review costs hours of rework; running Tier-L ceremony on a Tier-S typo costs tokens and time. Both are failures.
+- **Spec changes during implementation** are OK but must be documented and re-reviewed (Tier M/L)
+- **Small scope** is better — but right-size it; don't multiply fixed overhead across many tiny cycles. Batch many small same-session items under ONE parent bead and run them in a single lightweight loop.
 - **Claude CLI for LLM calls**: Use `CLAUDECODE= claude --print` not Anthropic SDK
 
 ## Additional Resources

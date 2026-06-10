@@ -36,8 +36,8 @@ assert_eq_sorted() {
 
 # ---------- --list ----------
 actual=$("$EVAL" --list | awk '{print $1}' | tr '\n' ' ' | sed 's/ *$//')
-assert_eq_sorted "--list returns the 3 v1 gates" \
-  "deps-verified plugin-installed pre-mortem-filed" \
+assert_eq_sorted "--list returns the 4 enabled gates" \
+  "deps-verified plugin-installed pre-mortem-filed staging-env-exists" \
   "$actual"
 
 # ---------- --for-spec ----------

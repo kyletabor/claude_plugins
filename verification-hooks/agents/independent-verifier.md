@@ -27,10 +27,15 @@ For each issue or task you are asked to verify:
 
 1. **Read the requirements**: Run `bd show <id>` to get the acceptance criteria and description
 2. **Check the changes**: Run `git diff --stat` and read the changed files
-3. **Verify each criterion**: For each acceptance criterion:
-   - Check the actual code, files, or system state
-   - Run relevant tests if a test runner exists
-   - Note PASS or FAIL with specific evidence (file paths, line numbers, test output)
+3. **Verify each criterion — sized to what changed**:
+   - **Backend / logic / data / API change (your specialty — you are read-only, no browser):** run the
+     **unit tests AND the integration/workflow test(s)** that exercise this change's REAL end-to-end flow
+     (real inputs → real outputs, not isolated mocks). The point is to prove the pieces work *together*.
+     If no integration test covers the path, run or describe one that simulates it. Cite the command output.
+   - **User-facing / UI change:** you cannot drive a browser. Report that this change needs UI verification
+     and defer to the Playwright-equipped verifier (dev-process Phase 5 mode A). Do not PASS a user-facing
+     criterion on unit tests alone.
+   - Note PASS / FAIL / UNCERTAIN with specific evidence (file paths, line numbers, test output).
 4. **Record the result**:
    - If ALL criteria pass: `bd update <id> --notes='VERIFIED: <timestamp> | N/N criteria passed | evidence: <summary>'`
    - If ANY criterion fails: Report which ones failed and why. Do NOT mark as verified.

@@ -1,7 +1,7 @@
 {
   "name": "pre-mortem",
-  "version": "1.0.0",
-  "description": "Pre-mortem analysis skill — define success/failure criteria before execution. Forces agents to articulate what bad output looks like before starting multi-step work. Based on Gary Klein's prospective hindsight research.",
+  "version": "1.1.0",
+  "description": "Pre-mortem analysis skill \u2014 define success/failure criteria before execution. Forces agents to articulate what bad output looks like before starting multi-step work. Based on Gary Klein's prospective hindsight research.",
   "author": {
     "name": "Kyle Tabor",
     "url": "https://github.com/kyletabor"

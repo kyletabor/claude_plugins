@@ -95,7 +95,7 @@
       "name": "dev-process",
       "source": "./dev-process",
       "description": "Structured development pipeline with spec-driven architecture, review gates, independent verification, and agent team coordination. v2.3.1: extensible Verification Suite (deps-verified, plugin-installed, pre-mortem-filed gates) enforced by verify-before-close hook",
-      "version": "2.3.1",
+      "version": "2.4.0",
       "category": "development",
       "tags": [
         "dev-process",
@@ -122,8 +122,8 @@
     {
       "name": "verification-hooks",
       "source": "./verification-hooks",
-      "description": "Independent work verification gates — enforces verification at task boundaries via hooks",
-      "version": "1.4.0",
+      "description": "Independent work verification gates \u2014 enforces verification at task boundaries via hooks",
+      "version": "1.5.0",
       "category": "development",
       "tags": [
         "verification",
@@ -136,7 +136,7 @@
     {
       "name": "tmux",
       "source": "./tmux",
-      "description": "Tmux session control for Claude Code — launch test sessions, send commands, read output with multi-agent safety",
+      "description": "Tmux session control for Claude Code \u2014 launch test sessions, send commands, read output with multi-agent safety",
       "version": "1.0.0",
       "category": "development",
       "tags": [
@@ -151,8 +151,8 @@
     {
       "name": "pre-mortem",
       "source": "./pre-mortem",
-      "description": "Pre-mortem analysis — define success/failure criteria before execution using Gary Klein's prospective hindsight research",
-      "version": "1.0.0",
+      "description": "Pre-mortem analysis \u2014 define success/failure criteria before execution using Gary Klein's prospective hindsight research",
+      "version": "1.1.0",
       "category": "development",
       "tags": [
         "pre-mortem",
@@ -165,7 +165,7 @@
     {
       "name": "friction",
       "source": "./friction",
-      "description": "Friction mining lifecycle for Total Recall — mining session transcripts, writing v2 stories, extracting moments from Kyle's comments, logging to the knowledge graph, and enriching over time. Encodes quality conventions so future sessions don't need re-teaching.",
+      "description": "Friction mining lifecycle for Total Recall \u2014 mining session transcripts, writing v2 stories, extracting moments from Kyle's comments, logging to the knowledge graph, and enriching over time. Encodes quality conventions so future sessions don't need re-teaching.",
       "version": "0.1.0",
       "category": "workflow",
       "tags": [
@@ -180,7 +180,7 @@
     {
       "name": "deploy-standard",
       "source": "./deploy-standard",
-      "description": "Enforces Kyle Deploy Standard v1 — all deployable projects use /opt symlink layout, Docker, /mnt/pi-data bind mounts. Skill + PreToolUse hook + SessionStart compliance audit.",
+      "description": "Enforces Kyle Deploy Standard v1 \u2014 all deployable projects use /opt symlink layout, Docker, /mnt/pi-data bind mounts. Skill + PreToolUse hook + SessionStart compliance audit.",
       "version": "1.1.0",
       "category": "development",
       "tags": [
@@ -194,7 +194,7 @@
     {
       "name": "total-recall",
       "source": "./total-recall",
-      "description": "Front door for Total Recall — query/operate Kyle's externalized self-model via skill modes (status/search/ingest/brief) and the /tr-brief cold-start command",
+      "description": "Front door for Total Recall \u2014 query/operate Kyle's externalized self-model via skill modes (status/search/ingest/brief) and the /tr-brief cold-start command",
       "version": "0.1.0",
       "category": "workflow",
       "tags": [

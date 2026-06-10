@@ -4,10 +4,12 @@ description: |
   Use when about to begin multi-step autonomous work, before writing code or executing plans.
   Defines success/failure criteria and verification plan BEFORE execution starts.
 
-  Trigger: /pre-mortem [task description], or implicitly before multi-step autonomous work
-  (plan execution, data pipelines, research, multi-file changes).
+  Trigger: /pre-mortem [task description], or implicitly before ANY work where you're about to act —
+  code, data pipelines, research, content. A 20-second "how could this go wrong?" is always worth it.
 
-  NOT for: single-file fixes, quick config changes, or tasks where success is trivially obvious.
+  The point is right-sizing DEPTH, not deciding whether to do one at all: Micro (one line) for
+  tiny/reversible work, Light (inline) for moderate, Full card for epics/high-stakes. Never skip
+  entirely; never force deep analysis on a typo.
 ---
 
 # Pre-Mortem: Define Success and Failure Before You Start
@@ -42,13 +44,14 @@ structures for different task types. Read them to understand the THINKING, not t
 5. **Identify risks and mitigations** — top 3-5 risks with concrete countermeasures
 6. **Verification plan** — how will you (or a verifier) check the output against these criteria?
 
-### Tiered Effort
+### Tiered Effort (always do one — scale the depth)
 
-- **Light** (routine multi-step tasks): 1-2 minutes. Frame, 3 success criteria, 3 failure modes, quick verification plan. Write inline in conversation, no separate file.
-- **Standard** (multi-file features, data pipelines): 5-10 minutes. Full coverage of all 6 areas. Save as card file.
-- **Deep** (novel work, high-stakes, or recovering from past failures): 15+ minutes. Thorough risk analysis, assumption validation, detailed verification plan. Can be delegated to sub-agent.
+- **Micro** (Tier-S / small reversible work — the DEFAULT): 10–30 seconds, ONE line. "Riskiest thing here: X; I'll catch it by Y." No file, no sub-agent, no ceremony. A correct Micro is a success, not a shortcut.
+- **Light** (Tier-M / routine multi-step): 1–2 minutes. Frame, ~3 success criteria, ~3 failure modes, quick verification plan. Inline, no file.
+- **Standard** (multi-file features, data pipelines): 5–10 minutes. Full coverage of all 6 areas. Save as a card file.
+- **Deep** (Tier-L / novel, high-stakes, or recovering from past failures): 15+ minutes. Thorough risk + assumption analysis, detailed verification plan. May be delegated to a sub-agent (capped ~15 turns).
 
-Scale naturally based on novelty and stakes. Don't force deep analysis on routine work; don't shortchange novel work with a light pass.
+Scale to novelty × stakes (and to the dev-process tier, if one applies). Don't force deep analysis on routine work; don't shortchange novel work with a light pass.
 
 ### Output: The Pre-Mortem Card
 
@@ -82,7 +85,8 @@ The main agent reads the concise card, not the full analysis.
 | Generic failure modes ("could have bugs") | Not testable, not useful | Specific: "entity count per session < 3 indicates extraction failure" |
 | Copy example structure exactly | Form-filling, not thinking | Adapt structure to the task's actual risks |
 | List risks without mitigations | Worry without action | Every risk gets a concrete countermeasure |
-| Skip pre-mortem for "simple" tasks | Simple tasks have hidden assumptions | Use Light tier — it takes 60 seconds |
+| Skip the pre-mortem entirely for "simple" tasks | Even simple tasks have a riskiest assumption | Do a Micro pre-mortem — one line, 20 seconds |
+| Force a Standard/Deep card onto a tiny reversible change | Ceremony tax with zero payoff | Right-size DOWN to Micro |
 | Write pre-mortem after starting work | Confirmation bias — you'll justify what you've already done | Pre-mortem BEFORE any execution |
 
 ## Red Flags — You're Doing It Wrong
@@ -90,8 +94,9 @@ The main agent reads the concise card, not the full analysis.
 - Your failure criteria could apply to ANY project (too generic)
 - Your success criteria are all about outputs, none about quality
 - You can't explain what specific thing you'd check to verify each criterion
-- You listed 0 assumptions (you always have assumptions)
-- Your pre-mortem took under 30 seconds for a Standard-tier task
+- You spun up a Standard/Deep card (or a sub-agent) for a small, reversible, low-risk change — that's over-sizing; do a Micro instead
+
+(Speed is NOT a red flag. A fast, correct Micro pre-mortem on small work is exactly right. The real failure mode is the opposite: defaulting to heavy analysis everywhere.)
 
 ## Integration Points
 
@@ -101,5 +106,7 @@ The main agent reads the concise card, not the full analysis.
 
 ## Examples
 
-**REQUIRED:** Read `references/examples.md` before your first pre-mortem. The examples show three different
-task types with deliberately different structures to demonstrate adaptive thinking.
+**Optional reference:** `references/examples.md` shows three task types with deliberately different
+structures to demonstrate adaptive thinking. Skim it if a pre-mortem's shape isn't obvious — but for
+Micro/Light tiers you don't need it; a strong model already knows what a specific, testable criterion
+looks like. Don't let reading examples become a tax on every small task.

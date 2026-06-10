@@ -1,6 +1,6 @@
 {
   "name": "dev-process",
-  "version": "2.3.1",
+  "version": "2.4.0",
   "description": "Structured development pipeline with spec-driven architecture, review gates, independent verification, and agent team coordination. v2.3: adds extensible Verification Suite (config/verification-gates.json + scripts/evaluate-gates.sh) with 3 v1 gates (deps-verified, plugin-installed, pre-mortem-filed) enforced via verify-before-close hook. CAPA-14 resolution.",
   "author": {
     "name": "Kyle Tabor",
