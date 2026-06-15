@@ -79,8 +79,8 @@ CLEAN_ARGS=$(echo "$ARGS_STRING" | \
   sed 's/--reason[= ]*"[^"]*"//g' | \
   sed "s/--reason[= ]*'[^']*'//g" | \
   sed 's/--reason[= ]*[^ ]*//g' | \
-  sed 's/-r *"[^"]*"//g' | \
-  sed 's/-r *[^ ]*//g' | \
+  sed -E 's/(^|[[:space:]])-r[[:space:]]+"[^"]*"/\1/g' | \
+  sed -E 's/(^|[[:space:]])-r[[:space:]]+[^[:space:]]+/\1/g' | \
   sed 's/--session[= ]*[^ ]*//g' | \
   sed 's/[0-9]*>&[0-9]*//g')
 
