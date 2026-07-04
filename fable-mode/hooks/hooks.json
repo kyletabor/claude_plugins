@@ -1,0 +1,21 @@
+{
+  "description": "fable-mode enforcement hooks — rendered-proof (UI edits need pixel evidence) and session-exit-hygiene (no silent uncommitted handbacks)",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/rendered-proof.sh",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/session-exit-hygiene.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

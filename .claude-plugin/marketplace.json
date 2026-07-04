@@ -192,6 +192,21 @@
       ]
     },
     {
+      "name": "fable-mode",
+      "source": "./fable-mode",
+      "description": "Fable 5's judgment habits as skills + hooks for Opus 4.8 — precondition checking, executive-mode interaction, one-screen output, adversarial self-review, and two enforcement hooks (rendered-proof, session-exit-hygiene)",
+      "version": "0.1.0",
+      "category": "development",
+      "tags": [
+        "judgment",
+        "verification",
+        "preconditions",
+        "executive",
+        "output-style",
+        "self-review"
+      ]
+    },
+    {
       "name": "total-recall",
       "source": "./total-recall",
       "description": "Front door for Total Recall \u2014 query/operate Kyle's externalized self-model via skill modes (status/search/ingest/brief) and the /tr-brief cold-start command",
