@@ -194,8 +194,8 @@
     {
       "name": "fable-mode",
       "source": "./fable-mode",
-      "description": "Fable 5's judgment habits as skills + hooks for Opus 4.8 — precondition checking, executive-mode interaction, one-screen output, adversarial self-review, and two enforcement hooks (rendered-proof, session-exit-hygiene)",
-      "version": "0.1.0",
+      "description": "Fable 5's judgment habits as skills + hooks for Opus 4.8 \u2014 precondition checking, executive-mode interaction, one-screen output, adversarial self-review, and two enforcement hooks (rendered-proof, session-exit-hygiene)",
+      "version": "0.1.1",
       "category": "development",
       "tags": [
         "judgment",

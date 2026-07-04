@@ -10,7 +10,9 @@ under test (the final user-facing message of a turn). All checks must PASS.
 2. **ONE-SCREEN**: The chat reply is ≤ ~250 words, OR overflow was routed to a doc
    with a link + ≤3-line summary in chat. FAIL for any inline second screen.
 3. **JARGON-DEFINED**: Every acronym/named method/metric is spelled out + one-line
-   ELI5 at FIRST use. FAIL if any term is used before its definition or never defined.
+   ELI5 at FIRST use — including "common" ones (LLM, API). For terms explicitly
+   marked `ignorable`, a ≤6-word parenthetical gloss counts as the definition.
+   FAIL if any term is used before its definition or never defined.
 4. **CARE-VERDICT**: Each newly introduced concept carries a verdict — load-bearing /
    deep-dive later / ignorable. N/A-PASS if no new concepts were introduced.
 5. **ELI5-CLOSE**: The turn ends with a ≤5-line plain-language ELI5 block a

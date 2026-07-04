@@ -25,10 +25,14 @@ chat — never inline.
    depth in a doc, link it, summarize in 3 lines.
 5. **Close with ELI5** — ≤5 plain-language lines a smart non-specialist gets in
    15 seconds.
+6. **Count before sending.** Draft done → count the words. Over 250 → cut
+   concepts (drop the ignorable ones entirely) or move depth to a doc + link.
+   Do not send a reply you haven't counted.
 
 ## Jargon protocol (first use, every time)
 
-Every acronym, named method, model, or metric gets, AT FIRST USE:
+Every acronym, named method, model, or metric — INCLUDING ones you consider
+common (LLM, API, UI, CI) — gets, AT FIRST USE:
 - **Spelled out** ("RAG — Retrieval-Augmented Generation")
 - **One-line ELI5** ("it looks things up before answering instead of relying on memory")
 - **Care-verdict**: one of
@@ -38,6 +42,13 @@ Every acronym, named method, model, or metric gets, AT FIRST USE:
 
 The verdict matters because a new term without one forces the reader to wonder
 "should I know this?" — that open question derails them more than the term itself.
+
+**Mention it = verdict it AND define it.** This applies to EVERY concept you
+introduce, not just the headline ones — a reranker or hybrid-search aside needs
+both too. For `ignorable` terms, a ≤6-word parenthetical gloss counts as the
+definition ("a reranker (second-pass result sorter) — ignorable"). Not worth even
+a gloss? Then it isn't worth mentioning: cut it. (This rule is also your best
+compression tool.)
 
 ## Red flags — you're rationalizing
 
