@@ -108,8 +108,12 @@ actual=$("$EVAL" --emit-create plugin-installed)
 if echo "$actual" | grep -q 'bd create' \
    && echo "$actual" | grep -qF 'GATE' \
    && echo "$actual" | grep -qF 'tmux'; then
-  # Verify the output is actually executable by eval'ing it in a dry-run context
+  # Verify the output is actually executable by eval'ing it in a dry-run context.
+  # Requires a beads database; without one, only check the command parses.
   dry_cmd="${actual} --dry-run"
+  if ! bd list >/dev/null 2>&1; then
+    dry_cmd="bash -n -c ${actual@Q}"
+  fi
   if bash -c "$dry_cmd" >/dev/null 2>&1; then
     echo "PASS: --emit-create plugin-installed prints executable bd create command"
     PASS=$((PASS+1))

@@ -1,4 +1,5 @@
 ---
+name: independent-verifier
 description: >
   Independent verification agent for checking if completed work meets acceptance criteria.
   Use when a verification gate blocks a bd close, or when independent verification is needed

@@ -26,7 +26,7 @@ Front door for [Total Recall](https://github.com/kyletabor/total-recall) — Kyl
 ## Install
 
 ```bash
-claude /plugin install total-recall
+/plugin install total-recall@kyle-plugins
 ```
 
 ## Status

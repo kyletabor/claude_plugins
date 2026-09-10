@@ -24,11 +24,11 @@ Provides a single skill (`/friction`) with 6 modes covering the full lifecycle:
 
 - Total Recall repo at `/home/orangepi/projects/total-recall/`
 - Friction graph DB at `data/friction-graph.db`
-- Graph CLI at `scripts/friction-graph.py`
+- Graph CLI at `scripts/friction-graph.py` in the Total Recall repo (not in this plugin)
 - piDocs MCP server (treehouse tools)
 
 ## Install
 
 ```bash
-claude /plugin install friction
+/plugin install friction@kyle-plugins
 ```

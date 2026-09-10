@@ -1,6 +1,6 @@
 ---
-identifier: friction-extractor
-whenToUse: |
+name: friction-extractor
+description: |
   Use this agent when you need to extract friction moments, vision ideas, and categories from
   Kyle's piDocs comments. This agent reads comments, applies LLM reasoning to identify what
   matters, and prepares structured output for graph insertion.

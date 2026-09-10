@@ -24,7 +24,8 @@ This is not a replacement for git history (which tracks code changes). Session H
 Install from the kyletabor/claude_plugins repository:
 
 ```bash
-claude plugin add kyletabor/claude_plugins/session-historian
+/plugin marketplace add kyletabor/claude_plugins
+/plugin install session-historian@kyle-plugins
 ```
 
 ### Manual Installation
@@ -33,7 +34,8 @@ Clone or copy the plugin directory and add it:
 
 ```bash
 git clone https://github.com/kyletabor/claude_plugins.git
-claude plugin add ./claude_plugins/session-historian
+claude plugin marketplace add ./claude_plugins
+claude plugin install session-historian@kyle-plugins
 ```
 
 ## What It Does

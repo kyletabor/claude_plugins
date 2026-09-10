@@ -26,7 +26,7 @@ class TestSearchSessions:
         )
         output = json.loads(result.stdout)
         assert output["status"] == "error"
-        assert "not found" in output["error"]
+        assert "No projects found" in output["error"]
 
     def test_json_output_format_with_fixture(self, temp_home_dir):
         """Verify output structure using fixtures."""

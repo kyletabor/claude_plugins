@@ -197,8 +197,14 @@ fi
 # Fail-open: if evaluator is missing or errors, this block is skipped silently.
 #            Gate 0 above continues to protect CAPA-8 behavior in that case.
 # ========================================
-EVAL_SCRIPT="$HOME/projects/claude_plugins/dev-process/scripts/evaluate-gates.sh"
-if [ -x "$EVAL_SCRIPT" ]; then
+# Resolve the dev-process gate evaluator: sibling plugin (marketplace install) or dev checkout.
+EVAL_SCRIPT=""
+for candidate in \
+  "${CLAUDE_PLUGIN_ROOT:-.}/../dev-process/scripts/evaluate-gates.sh" \
+  "$HOME/projects/claude_plugins/dev-process/scripts/evaluate-gates.sh"; do
+  if [ -x "$candidate" ]; then EVAL_SCRIPT="$candidate"; break; fi
+done
+if [ -n "$EVAL_SCRIPT" ]; then
   MISSING_GATES=""
   for ID in $ISSUE_IDS; do
     APPLICABLE=$("$EVAL_SCRIPT" --for-close "$ID" 2>/dev/null | tr '\n' ' ')
@@ -224,7 +230,7 @@ Missing (format: closing-bead:required-gate-id):
 Each required gate needs a CLOSED bead with a title matching the gate registry,
 containing the gate's evidence_marker in its notes. See:
   $EVAL_SCRIPT --list
-  cat "$HOME/projects/claude_plugins/dev-process/config/verification-gates.json"
+  cat "$(dirname "$EVAL_SCRIPT")/../config/verification-gates.json"
 
 Check a specific gate: $EVAL_SCRIPT --check-evidence <closing-bead> <gate-id>
 EOF

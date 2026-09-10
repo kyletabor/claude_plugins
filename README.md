@@ -1,112 +1,132 @@
 # Kyle's Claude Code Plugins
 
-A collection of plugins for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) that add structured development workflows, session management, learning tools, and productivity shortcuts. Built by Kyle Tabor for daily use -- shared publicly for anyone who wants to get more out of Claude Code.
-
-## Plugins
-
-| Plugin | Version | Status | Description |
-|--------|---------|--------|-------------|
-| **dev-process** | 2.0.0 | Stable | Spec-driven development pipeline with review gates and independent verification |
-| **capture** | 1.1.0 | Stable | Quick-capture tasks, bookmarks, ideas, and follow-ups to a personal inbox |
-| **handoff** | 1.1.0 | Stable | Save session context and resume in a fresh Claude session without losing continuity |
-| **capa** | 1.0.0 | Stable | Corrective and Preventive Action process for investigating broken processes |
-| **educate-me** | 1.0.0 | Stable | Structured 1-on-1 tutor that teaches any subject using a MECE framework |
-| **session-historian** | 1.0.0 | Stable | Read and analyze Claude Code session history for debugging and workflow analysis |
-| **secret-vault** | 0.1.0 | Experimental | Intercept and securely store secrets pasted in chat, auto-redact from logs |
-| **gastown** | 1.1.0 | Deprecated | Multi-agent orchestration for Gas Town environments (abandoned due to upstream bugs) |
+A marketplace of plugins for [Claude Code](https://docs.claude.com/en/docs/claude-code) that add structured development workflows, verification gates, session continuity, learning tools, and productivity shortcuts. Built by Kyle Tabor for daily use and shared publicly. Marketplace name: **`kyle-plugins`**.
 
 ## Installation
 
-Install all plugins from the marketplace:
+Add the marketplace once, then install whichever plugins you want. Inside Claude Code:
 
-```bash
-claude plugin add kyletabor/claude_plugins
+```
+/plugin marketplace add kyletabor/claude_plugins
+/plugin install dev-process@kyle-plugins
 ```
 
-Install an individual plugin:
+Or from your shell:
 
 ```bash
-claude plugin add kyletabor/claude_plugins/dev-process
-claude plugin add kyletabor/claude_plugins/capture
-claude plugin add kyletabor/claude_plugins/handoff
-# etc.
+claude plugin marketplace add kyletabor/claude_plugins
+claude plugin install dev-process@kyle-plugins
 ```
 
-## Plugin Details
+Browse everything with `/plugin`, and pull updates with `/plugin marketplace update kyle-plugins`. Plugins are cached by version, so a new version only lands after a restart.
+
+## Which plugins should I try?
+
+Two groups. The first works anywhere. The second is built around my own machine and tooling and is here for reference or to fork.
+
+### General purpose
+
+| Plugin | Version | What it does |
+|--------|---------|--------------|
+| **[dev-process](dev-process/)** | 2.4.1 | Right-sized development pipeline: spec, review, implement, verify. The orchestrator the rest plug into. Gate tracking uses the [beads](https://github.com/steveyegge/beads) `bd` CLI. |
+| **[verification-hooks](verification-hooks/)** | 1.5.2 | Hooks that block "done" until an independent agent has checked the work. The close gate targets the beads `bd` CLI. |
+| **[pre-mortem](pre-mortem/)** | 1.1.0 | Define success and failure criteria before starting multi-step work. |
+| **[fable-mode](fable-mode/)** | 0.1.1 | Judgment habits as skills and Stop hooks: check preconditions, answer first, prove UI changes, never hand back uncommitted work. |
+| **[session-historian](session-historian/)** | 1.0.1 | Read and analyze past Claude Code sessions: search, find errors, cross-session patterns. |
+| **[tmux](tmux/)** | 1.0.0 | Let Claude drive tmux sessions safely for testing and verification. |
+| **[educate-me](educate-me/)** | 1.1.0 | A 1-on-1 tutor that teaches any topic step by step with a MECE outline. |
+| **[secret-vault](secret-vault/)** | 0.1.1 | Experimental. Catch secrets pasted in chat and store them outside the transcript. |
+
+### Personal / infrastructure-specific
+
+These depend on services, paths, or conventions on my machine. Read them for ideas; they will not work out of the box.
+
+| Plugin | Version | What it does | Depends on |
+|--------|---------|--------------|------------|
+| **[capture](capture/)** | 1.1.0 | Quick-capture tasks, bookmarks, and ideas to a personal inbox. | A `capture-mcp` MCP server (not in this repo) |
+| **[deploy-standard](deploy-standard/)** | 1.1.0 | Enforces my deploy layout with a PreToolUse hook and SessionStart audit. | `/opt` symlink layout, `/mnt/pi-data`, a `deploy` CLI |
+| **[total-recall](total-recall/)** | 0.1.1 | Front door to my externalized memory system. | The Total Recall backend |
+| **[friction](friction/)** | 0.1.1 | Mines session transcripts for AI friction moments and logs them to a knowledge graph. | Total Recall, piDocs, a local SQLite graph |
+| **[handoff](handoff/)** | 1.2.0 | Save session context and resume in a fresh session without losing the thread. | Handoff directory under `/mnt/pi-data`, claude-mem |
+| **[capa](capa/)** | 1.0.0 | Corrective and Preventive Action: fix the broken process first, then the defect. | SQLite tracking DB under `/mnt/pi-data` |
+| **[gastown](gastown/)** | 1.1.0 | Deprecated. Multi-agent orchestration for Gas Town. Kept for reference only. | Gas Town v0.7 (abandoned upstream) |
+
+## Plugin details
 
 ### dev-process
 
-The single orchestrator for all non-trivial implementation work. Runs a six-phase pipeline: Architecture Spec, Spec Review, Implementation, Code Review, Testing + Independent Verification, and Ship. It coordinates sub-skills (brainstorming, TDD, subagent-driven development, verification) so you don't invoke them separately. Use it any time you're building something that touches multiple files or needs architecture before coding.
+The single orchestrator for non-trivial implementation work. Phase 0 classifies the task by size and risk into Tier S, M, or L, then runs only the process that tier needs: a one-line pre-mortem and a machine gate for small work, the full spec / review / implement / independent-verify pipeline for large or risky work. Ships an `independent-verifier` agent that cannot edit code, plus an extensible Verification Suite of gates (`config/verification-gates.json`) that `verification-hooks` enforces.
 
-Invoke: `/dev-process` or just ask Claude to "implement this" / "build this feature".
+Invoke: `/dev-process` or just say "implement this" / "build this feature".
 
-### capture
+### verification-hooks
 
-Zero-friction inbox for things you want to remember later. Say "bookmark this", "add a task", "idea: ...", or "follow up on ..." and it captures the item with auto-categorization (task, bookmark, idea, follow-up, research). Backed by an MCP server with search, digest, and promotion to a full task tracker.
+Stops Claude from claiming "done" without proof. A PreToolUse hook gates issue closure, a TaskCompleted agent hook re-checks completed tasks sized to blast radius, and a PostToolUse logger records evidence. Includes a read-only `independent-verifier` agent and an `analyze-verification.sh` report. Pairs with dev-process but runs standalone.
 
-Invoke: `/capture <text>` or use natural language like "remember this for later".
+### pre-mortem
+
+Before multi-step work, Claude writes down what success looks like, how it would fail, what it is assuming, and how it will verify. Depth scales from one line to a full card. Based on Gary Klein's prospective hindsight research.
+
+Invoke: `/pre-mortem <task>` or "how could this go wrong?"
+
+### fable-mode
+
+Four skills and two Stop hooks that encode judgment habits for working with an executive-style user: `precondition-check` (verify the premise before recommending), `executive-mode` (act versus ask, clean handbacks), `last-screen` (answer first, one screen, jargon defined), and `but-for-real` (hostile self-review before claiming done). The `rendered-proof` hook demands pixel evidence for UI edits; `session-exit-hygiene` blocks silent uncommitted handbacks. Each skill ships with evals.
 
 ### handoff
 
-Saves your current session context -- active goals, unfinished work, key files, decisions made -- so a fresh Claude session can pick up exactly where you left off. Useful when context gets long or you need to switch machines. The handoff file auto-injects on the next session start.
-
-Invoke: `/handoff` or say "save context" / "pick this up later".
-
-### capa
-
-Corrective and Preventive Action -- an eight-phase process for when your development process itself fails. Not for simple bugs (use systematic-debugging for those). Use CAPA when the same failure pattern recurs, when "done" was claimed but the feature doesn't work, or when a gate failed to fire. Tracks root causes, research, process fixes, and re-execution in a shared SQLite database.
-
-Invoke: `/capa <what broke>` or say "why did this fail again" / "do a retrospective".
-
-### educate-me
-
-A structured 1-on-1 tutor that teaches any subject step-by-step. Organizes material into a MECE (Mutually Exclusive, Completely Exhaustive) framework with 3-5 major sections, teaches one concept at a time, checks understanding before moving on, and wraps up with a vocabulary list and next steps. Works with topics, URLs, or local files.
-
-Invoke: `/educate-me <topic or URL>` or say "teach me about X" / "walk me through this".
+`/handoff` saves goals, unfinished work, key files, and decisions to a handoff file. A SessionStart hook injects it into the next session. `/handoff-resume` and `/handoff-clear` manage it explicitly.
 
 ### session-historian
 
-Six Python scripts for reading and analyzing Claude Code session history stored in `~/.claude/projects/`. List recent sessions, search conversation text, find errors, get deep context for debugging, and run cross-session pattern analysis. Useful for understanding what past agents did, continuing interrupted work, or spotting recurring failure patterns.
+Six Python scripts over `~/.claude/projects/`: list sessions, search text, find errors, pull deep context, summarize, and run cross-session analysis. Has a pytest suite.
 
-Invoke: `/session-historian` or ask "what did the last session do" / "find sessions about X".
+Invoke: "what did the last session do", "find sessions about X".
 
-### secret-vault (Experimental)
+### tmux
 
-Early-stage plugin for intercepting secrets (API keys, tokens, passwords) pasted into chat and storing them securely in `~/.secrets/` with restricted permissions. Includes a UserPromptSubmit hook that catches common secret patterns automatically. Not yet feature-complete -- use with the understanding that the redaction and storage mechanisms are still being hardened.
+Recipes for creating, driving, reading, and cleaning up tmux sessions, with a registry so Claude only touches sessions it created. Built for verifying plugins in a fresh Claude Code session.
 
-Invoke: `/secret` for the guided flow, or paste a secret and the hook catches it.
+### educate-me
 
-### gastown (Deprecated)
+Structured tutoring: builds a MECE outline of 3 to 5 sections, teaches one concept at a time, checks understanding, and closes with vocabulary and next steps. Works on topics, URLs, or local files.
 
-Multi-agent orchestration plugin for Gas Town environments. Originally created by Steve Yegge, this plugin taught Claude how to operate with Gas Town roles (Mayor, Polecat, Crew, etc.) and coordinate across multiple Claude instances. **Deprecated and no longer maintained** -- Gas Town v0.7 has unfixable bugs that make it unreliable. Kept in the repo for reference only.
+Invoke: `/educate-me <topic or URL>`.
+
+### capa
+
+Eight-phase Corrective and Preventive Action investigation for when the *process* failed: the same bug recurs, "done" was claimed but nothing works, a gate did not fire. Tracks root causes and fixes in a SQLite database.
+
+Invoke: `/capa <what broke>`.
+
+### secret-vault (experimental)
+
+A UserPromptSubmit hook watches for API keys, tokens, and passwords pasted into chat and moves them to `~/.secrets/` with restricted permissions. Redaction and storage are still being hardened.
+
+Invoke: `/secret`, or paste a secret and the hook catches it.
 
 ## Guides
 
-- **[Statusline Setup](docs/statusline-setup.md)** — How I configure the Claude Code statusline: a two-line dashboard with context bar, git repo/branch, model name, session duration, active task, lines changed, total tokens (including subagents), and weekly rate limit. Includes the full script, customization recipes, and the complete JSON field reference.
+- **[Statusline setup](docs/statusline-setup.md)**: a two-line statusline with context bar, git branch, model, session duration, lines changed, total tokens, and weekly rate limit. Full script and JSON field reference.
 
-## Repository Structure
+## Repository layout
 
 ```
 claude_plugins/
-├── .claude-plugin/
-│   └── marketplace.json      # Multi-plugin marketplace registry
-├── capture/                   # Quick-capture inbox plugin
-├── capa/                      # Corrective and Preventive Action plugin
-├── dev-process/               # Structured development pipeline plugin
-├── educate-me/                # MECE tutoring plugin
-├── gastown/                   # Multi-agent orchestration (deprecated)
-├── handoff/                   # Session context handoff plugin
-├── secret-vault/              # Secret interception plugin (experimental)
-├── session-historian/         # Session history analysis plugin
-└── README.md
+├── .claude-plugin/marketplace.json   # registry: every plugin must be listed here
+├── <plugin>/
+│   ├── .claude-plugin/plugin.json    # manifest; version must match marketplace.json
+│   ├── README.md
+│   ├── skills/<name>/SKILL.md
+│   ├── commands/ agents/ hooks/      # optional
+│   └── tests/                        # optional
+└── docs/
 ```
 
-Each plugin directory contains its own `.claude-plugin/plugin.json` manifest, a `skills/` directory with `SKILL.md` files, and optionally `commands/`, `agents/`, `hooks/`, and `references/` directories.
+## Contributing
 
-## Author
-
-**Kyle Tabor** -- [github.com/kyletabor](https://github.com/kyletabor)
+Issues and pull requests are welcome. To add or update a plugin: bump the version in both the plugin's `plugin.json` and its `marketplace.json` entry, then run `bash verification-hooks/scripts/validate-marketplace.sh` from a plugin directory (or set `CLAUDE_PLUGIN_ROOT`) to confirm every plugin is registered.
 
 ## License
 
-MIT
+MIT. Copyright Kyle Tabor. The `gastown` plugin was originally authored by Steve Yegge under MIT.

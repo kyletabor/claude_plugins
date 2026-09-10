@@ -1,6 +1,6 @@
 {
   "name": "session-historian",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Read and analyze Claude Code session history for debugging, continuity, and workflow analysis",
   "author": {
     "name": "Kyle Tabor",

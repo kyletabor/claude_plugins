@@ -4,14 +4,14 @@ description: >
   This skill should be used when the user asks about "verification hooks", "verification status",
   "analyze verification", "verification report", "check verification log", "why was my close blocked",
   "verification gate", or mentions independent verification enforcement. Also triggers when
-  investigating blocked bd close, TaskCompleted, or Stop events. Provides guidance on the
+  investigating blocked bd close or TaskCompleted events. Provides guidance on the
   verification hooks system, troubleshooting, and monitoring.
 ---
 
 # Verification Hooks
 
 Architectural enforcement of independent work verification at task boundaries. When Claude claims
-work is done (bd close, TaskComplete, or Stop after code changes), a fresh Sonnet agent checks
+work is done (bd close or TaskCompleted), a fresh Sonnet agent checks
 if the work actually matches requirements.
 
 ## Core Principle

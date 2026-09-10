@@ -57,7 +57,7 @@ into a 6-line briefing. The script is fail-soft: if any source is unavailable it
 that section and continues. Exit code is always 0.
 
 If for some reason the slash command is not registered, you can run the script directly:
-`bash ~/projects/claude_plugins/total-recall/scripts/tr-brief.sh`
+`bash ${CLAUDE_PLUGIN_ROOT}/scripts/tr-brief.sh`
 
 ---
 

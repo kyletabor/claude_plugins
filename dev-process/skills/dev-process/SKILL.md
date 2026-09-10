@@ -300,15 +300,15 @@ populated Dependency Verification section):
 
 ```bash
 # Emit bd create commands for every applicable gate, then execute them.
-EVAL=~/projects/claude_plugins/dev-process/scripts/evaluate-gates.sh
+EVAL="${CLAUDE_PLUGIN_ROOT}/scripts/evaluate-gates.sh"
 for gate_id in $("$EVAL" --for-spec <path-to-spec.md>); do
   eval "$("$EVAL" --emit-create "$gate_id")"
 done
 ```
 
-The registry lives at `~/projects/claude_plugins/dev-process/config/verification-gates.json`.
+The registry lives at `${CLAUDE_PLUGIN_ROOT}/config/verification-gates.json`.
 To see all enabled gates: `$EVAL --list`. To add a new one (from a closed CAPA), see
-`~/projects/claude_plugins/dev-process/references/adding-a-gate.md`.
+`${CLAUDE_PLUGIN_ROOT}/references/adding-a-gate.md`.
 
 <HARD-GATE>
 GATE beads are NOT optional. `verify-before-close.sh` will BLOCK closing any requirement bead
@@ -339,7 +339,7 @@ Launch a Plan subagent to review the spec:
    inspected — not just our wrapper code? Are source file paths cited as evidence?
    If the spec references dependency capabilities without citing library source → REJECT.
 7. VERIFICATION SUITE CHECK (MANDATORY). Run:
-       EVAL=~/projects/claude_plugins/dev-process/scripts/evaluate-gates.sh
+       EVAL="${CLAUDE_PLUGIN_ROOT}/scripts/evaluate-gates.sh"
        "$EVAL" --for-spec <spec-path>
    PASTE the full output into your verdict. For each gate id the evaluator lists,
    confirm a corresponding GATE bead (open OR closed, matching the gate's registry

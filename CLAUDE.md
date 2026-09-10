@@ -8,21 +8,15 @@ Marketplace of Claude Code plugins. GitHub: kyletabor/claude_plugins, marketplac
 claude_plugins/
   .claude-plugin/
     marketplace.json       # Marketplace manifest — ALL plugins must be registered here
-  hooks/
-    hooks.json             # Root-level hooks (SessionStart validation)
-  scripts/
-    validate-marketplace.sh  # Checks for unregistered plugin dirs on session start
-  capa/                    # CAPA process (corrective/preventive action)
-  capture/                 # Quick-capture inbox via capture-mcp MCP server
-  dev-process/             # Structured dev pipeline (spec, review, verification)
-  educate-me/              # 1-on-1 MECE tutor
-  gastown/                 # Multi-agent orchestration (ABANDONED — do not invest)
-  handoff/                 # Session context save/restore
-  secret-vault/            # Secret interception and redaction
-  session-historian/       # Session history reader and analyzer
+  <plugin>/                # One directory per plugin (15 today; see README.md for the list)
+    .claude-plugin/plugin.json
+    README.md
+    skills/ commands/ agents/ hooks/ tests/   # some combination
+  docs/                    # Guides (statusline) + design specs/plans under docs/superpowers/
+  verification-hooks/scripts/validate-marketplace.sh   # Checks for unregistered plugin dirs (SessionStart hook)
 ```
 
-Each plugin has its own `.claude-plugin/plugin.json` and contains some combination of `skills/`, `commands/`, `hooks/`, and `agents/` directories.
+Every plugin has its own `.claude-plugin/plugin.json` and a `README.md`. The README at the repo root splits plugins into "general purpose" and "personal / infrastructure-specific"; keep that split accurate when adding one.
 
 ## Plugin Update Workflow
 
@@ -31,8 +25,9 @@ Each plugin has its own `.claude-plugin/plugin.json` and contains some combinati
    - Patch (0.1.0 -> 0.1.1): Bug fixes
    - Minor (0.1.0 -> 0.2.0): New features, new skills/agents/commands
    - Major (0.1.0 -> 1.0.0): Breaking changes
-3. Commit and push to GitHub.
-4. Start a new Claude Code session. It fetches the new version from the marketplace.
+3. Add or update the plugin's README.md and its row in the root README.md.
+4. Commit and push to GitHub.
+5. Start a new Claude Code session. It fetches the new version from the marketplace.
 
 Claude Code caches plugins by version. Without a version bump, the cache will not refresh even after pushing changes.
 
@@ -40,19 +35,23 @@ Claude Code caches plugins by version. Without a version bump, the cache will no
 
 Every plugin directory with a `.claude-plugin/plugin.json` MUST have a matching entry in `.claude-plugin/marketplace.json`. Without it, the plugin is invisible to Claude Code. This has caused silent failures multiple times.
 
-A SessionStart hook runs `scripts/validate-marketplace.sh` to warn about unregistered plugins, but it is informational only and does not block.
+The `verification-hooks` plugin runs `verification-hooks/scripts/validate-marketplace.sh` on SessionStart to warn about unregistered plugins. It is informational only and does not block.
 
 When adding a new plugin:
 1. Create the directory with `.claude-plugin/plugin.json`.
 2. Add a corresponding entry to `.claude-plugin/marketplace.json` with matching name and version.
-3. Verify by running: `bash scripts/validate-marketplace.sh`
+3. Verify by running: `CLAUDE_PLUGIN_ROOT=verification-hooks bash verification-hooks/scripts/validate-marketplace.sh`
 
 ## Testing Plugins
 
 After making changes, verify the plugin works:
 
-1. Run the marketplace validator: `CLAUDE_PLUGIN_ROOT=. bash scripts/validate-marketplace.sh`
+1. Run the marketplace validator: `CLAUDE_PLUGIN_ROOT=verification-hooks bash verification-hooks/scripts/validate-marketplace.sh`
 2. Confirm version match: check that the version in the plugin's `plugin.json` matches its entry in `marketplace.json`.
 3. Commit, push, then start a fresh Claude Code session.
 4. Invoke the changed skill or command and confirm it behaves as expected.
 5. For plugins with test suites (e.g., session-historian/tests/), run those tests directly.
+
+## Public Repo Hygiene
+
+This repo is public. Before committing: no secrets, emails, private hostnames (Tailscale names included), or session transcripts. Personal absolute paths are tolerated only inside plugins listed as personal/infrastructure-specific in the README.

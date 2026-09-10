@@ -9,7 +9,8 @@ Gas Town is a multi-agent orchestration system for Claude Code that coordinates 
 ## Installation
 
 ```bash
-claude plugin add kyletabor/claude_plugins/gastown
+/plugin marketplace add kyletabor/claude_plugins
+/plugin install gastown@kyle-plugins
 ```
 
 ## What It Provides

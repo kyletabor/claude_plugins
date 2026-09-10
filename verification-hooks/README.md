@@ -11,8 +11,8 @@ acceptance criteria. If the work doesn't meet the criteria, the action is blocke
 
 ## Components
 
-- **Hooks**: PreToolUse (bd close + infra gates), TaskCompleted (agent verification),
-  Stop (catch-all agent verification), PostToolUse (event logger)
+- **Hooks**: SessionStart (marketplace registry check), PreToolUse (bd close + infra gates),
+  TaskCompleted (agent verification), PostToolUse (event logger)
 - **Skills**: Verification skill with monitoring guidance and troubleshooting
 - **Agents**: Independent verifier agent (read-only, Sonnet-powered)
 - **Scripts**: Shared log writer, analysis/monitoring report

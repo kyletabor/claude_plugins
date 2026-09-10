@@ -29,6 +29,13 @@ def error_session_file(fixtures_dir):
     return fixtures_dir / "error_session.jsonl"
 
 
+
+def _copy_fresh(src, dst):
+    """Copy a fixture, rewriting its 2025-12-25 timestamps to today so --days filters keep it."""
+    from datetime import datetime, timezone
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    dst.write_text(src.read_text().replace("2025-12-25", today))
+
 @pytest.fixture
 def temp_home_dir(fixtures_dir):
     """
@@ -49,11 +56,11 @@ def temp_home_dir(fixtures_dir):
     project_dir.mkdir(parents=True)
 
     # Copy fixture files with different names to test various scenarios
-    shutil.copy(fixtures_dir / "simple_session.jsonl", project_dir / "test-session-001.jsonl")
-    shutil.copy(fixtures_dir / "error_session.jsonl", project_dir / "error-session-001.jsonl")
+    _copy_fresh(fixtures_dir / "simple_session.jsonl", project_dir / "test-session-001.jsonl")
+    _copy_fresh(fixtures_dir / "error_session.jsonl", project_dir / "error-session-001.jsonl")
 
     # Also create a second simple session for multi-session tests
-    shutil.copy(fixtures_dir / "simple_session.jsonl", project_dir / "test-session-002.jsonl")
+    _copy_fresh(fixtures_dir / "simple_session.jsonl", project_dir / "test-session-002.jsonl")
 
     # Create environment dict for subprocess calls
     env = os.environ.copy()
