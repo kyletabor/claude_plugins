@@ -28,8 +28,8 @@ Two groups. The first works anywhere. The second is built around my own machine 
 
 | Plugin | Version | What it does |
 |--------|---------|--------------|
-| **[dev-process](dev-process/)** | 2.4.1 | Right-sized development pipeline: spec, review, implement, verify. The orchestrator the rest plug into. Gate tracking uses the [beads](https://github.com/steveyegge/beads) `bd` CLI. |
-| **[verification-hooks](verification-hooks/)** | 1.5.2 | Hooks that block "done" until an independent agent has checked the work. The close gate targets the beads `bd` CLI. |
+| **[dev-process](dev-process/)** | 2.4.2 | Right-sized development pipeline: spec, review, implement, verify. The orchestrator the rest plug into. Gate tracking uses the [beads](https://github.com/steveyegge/beads) `bd` CLI. |
+| **[verification-hooks](verification-hooks/)** | 1.6.0 | **Deprecated 2026-09-16.** Hooks removed; no-op. Independent verification now lives in dev-process. Kept for reference. |
 | **[pre-mortem](pre-mortem/)** | 1.1.0 | Define success and failure criteria before starting multi-step work. |
 | **[fable-mode](fable-mode/)** | 0.1.1 | Judgment habits as skills and Stop hooks: check preconditions, answer first, prove UI changes, never hand back uncommitted work. |
 | **[session-historian](session-historian/)** | 1.0.1 | Read and analyze past Claude Code sessions: search, find errors, cross-session patterns. |
@@ -55,13 +55,13 @@ These depend on services, paths, or conventions on my machine. Read them for ide
 
 ### dev-process
 
-The single orchestrator for non-trivial implementation work. Phase 0 classifies the task by size and risk into Tier S, M, or L, then runs only the process that tier needs: a one-line pre-mortem and a machine gate for small work, the full spec / review / implement / independent-verify pipeline for large or risky work. Ships an `independent-verifier` agent that cannot edit code, plus an extensible Verification Suite of gates (`config/verification-gates.json`) that `verification-hooks` enforces.
+The single orchestrator for non-trivial implementation work. Phase 0 classifies the task by size and risk into Tier S, M, or L, then runs only the process that tier needs: a one-line pre-mortem and a machine gate for small work, the full spec / review / implement / independent-verify pipeline for large or risky work. Ships an `independent-verifier` agent that cannot edit code, plus an extensible Verification Suite of gates (`config/verification-gates.json`) that the skill enforces at close time (formerly enforced by the now-deprecated `verification-hooks`).
 
 Invoke: `/dev-process` or just say "implement this" / "build this feature".
 
-### verification-hooks
+### verification-hooks (deprecated)
 
-Stops Claude from claiming "done" without proof. A PreToolUse hook gates issue closure, a TaskCompleted agent hook re-checks completed tasks sized to blast radius, and a PostToolUse logger records evidence. Includes a read-only `independent-verifier` agent and an `analyze-verification.sh` report. Pairs with dev-process but runs standalone.
+**Retired 2026-09-16.** Four months of logs showed its gates caught no real defects while producing a 64% false-block rate (the close gate ran `bd show` from the session cwd, not the repo), a `TaskCompleted` hook that never fired, and ~350ms of overhead per tool call. v1.6.0 removes all hooks and is a no-op. Independent verification is a dev-process step (`dev-process:independent-verifier`); for unattended runs use Claude Code's native `/goal`. Scripts and the agent definition remain for reference.
 
 ### pre-mortem
 

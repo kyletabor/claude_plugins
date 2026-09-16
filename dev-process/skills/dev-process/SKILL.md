@@ -311,9 +311,11 @@ To see all enabled gates: `$EVAL --list`. To add a new one (from a closed CAPA),
 `${CLAUDE_PLUGIN_ROOT}/references/adding-a-gate.md`.
 
 <HARD-GATE>
-GATE beads are NOT optional. `verify-before-close.sh` will BLOCK closing any requirement bead
-whose applicable gates don't have CLOSED GATE beads with the correct evidence_marker in their
-VERIFIED notes. Skipping Step 5 = blocked at close time.
+GATE beads are NOT optional. Before closing any requirement bead, run `$EVAL --for-close <id>`
+and `$EVAL --check-evidence <id> <gate>` yourself, and do not close until every applicable gate
+has a CLOSED GATE bead with the correct evidence_marker in its VERIFIED notes. (The
+`verification-hooks` plugin that used to enforce this at `bd close` was deprecated 2026-09-16;
+this skill is the enforcement now, not a hook.)
 
 The Verification Suite is the consolidated enforcement for recurring AI-agent failure modes
 (CAPA-8 deps-verified, CAPA-14 plugin-installed, CLAUDE.md-rule-2 pre-mortem-filed, and any
@@ -360,10 +362,10 @@ and `acceptance` string).
 
 <HARD-GATE>
 If `deps-verified` appeared in the evaluator output, you MUST close its GATE bead with a
-VERIFIED: note citing source paths before starting implementation. The verify-before-close
-hook blocks closing any R-prefixed requirement until every applicable gate has a closed
-GATE bead with the correct evidence_marker. This is architectural enforcement, not a
-suggestion.
+VERIFIED: note citing source paths before starting implementation. Do not close any
+R-prefixed requirement until every applicable gate has a closed GATE bead with the correct
+evidence_marker. (The `verify-before-close` hook that used to block this was deprecated
+2026-09-16; this skill is the enforcement now.)
 </HARD-GATE>
 
 For each external dependency referenced in the spec:

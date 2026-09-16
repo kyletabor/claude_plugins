@@ -10,6 +10,9 @@ description: >
 
 # Verification Hooks
 
+> **DEPRECATED 2026-09-16.** The hooks described below are removed (v1.6.0 is a no-op). Independent
+> verification is a dev-process step now (`dev-process:independent-verifier`). This file is kept for reference.
+
 Architectural enforcement of independent work verification at task boundaries. When Claude claims
 work is done (bd close or TaskCompleted), a fresh Sonnet agent checks
 if the work actually matches requirements.

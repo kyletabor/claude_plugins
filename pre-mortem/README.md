@@ -30,7 +30,7 @@ Claude will also invoke it implicitly before starting multi-step autonomous work
 
 ## Works With
 
-`dev-process` calls this in Phase 0 and `verification-hooks` can gate task closure on a filed pre-mortem card. Both are optional; the skill stands alone.
+`dev-process` calls this in Phase 0 (the `verification-hooks` close gate that once enforced it is deprecated). Both are optional; the skill stands alone.
 
 ## Installation
 

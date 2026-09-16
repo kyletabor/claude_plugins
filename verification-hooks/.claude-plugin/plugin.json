@@ -1,7 +1,7 @@
 {
   "name": "verification-hooks",
-  "version": "1.5.2",
-  "description": "Independent work verification gates for Claude Code — enforces verification at task boundaries via hooks",
+  "version": "1.6.0",
+  "description": "DEPRECATED (2026-09-16) — hooks removed; plugin is a no-op. Independent verification lives in dev-process. See README.",
   "author": {
     "name": "Kyle Tabor",
     "url": "https://github.com/kyletabor"

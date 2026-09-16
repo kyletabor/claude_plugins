@@ -1,3 +1,11 @@
+> **DEPRECATED — 2026-09-16.** This plugin is retired and its hooks are removed (v1.6.0 is a no-op).
+> Four months of logs showed the gates caught **0** real defects while producing a 64% false-block
+> rate (the close gate ran `bd show` from the session cwd, not the repo), a `TaskCompleted` hook that
+> never fired (beads replaces the built-in task list), and ~350ms of overhead on every tool call.
+> Independent verification remains a **dev-process** step (`dev-process:independent-verifier`), and
+> for unattended runs use Claude Code's native `/goal`. Uninstall with `/plugin uninstall verification-hooks@kyle-plugins`.
+> The scripts and agent definition are kept for reference only.
+
 # Verification Hooks
 
 Independent work verification gates for Claude Code. Enforces verification at task boundaries

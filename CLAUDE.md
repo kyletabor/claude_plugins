@@ -35,7 +35,7 @@ Claude Code caches plugins by version. Without a version bump, the cache will no
 
 Every plugin directory with a `.claude-plugin/plugin.json` MUST have a matching entry in `.claude-plugin/marketplace.json`. Without it, the plugin is invisible to Claude Code. This has caused silent failures multiple times.
 
-The `verification-hooks` plugin runs `verification-hooks/scripts/validate-marketplace.sh` on SessionStart to warn about unregistered plugins. It is informational only and does not block.
+`verification-hooks/scripts/validate-marketplace.sh` warns about unregistered plugins. It used to run on SessionStart via the (now deprecated) `verification-hooks` plugin; run it manually as shown below.
 
 When adding a new plugin:
 1. Create the directory with `.claude-plugin/plugin.json`.
