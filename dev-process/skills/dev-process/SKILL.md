@@ -1,35 +1,21 @@
 ---
 name: dev-process
 description: |
-  THE SINGLE ORCHESTRATOR for all implementation work. This skill should be used ANY TIME the user asks
-  to implement, build, or execute a plan that involves multi-file changes or non-trivial features. This
-  is the DEFAULT workflow for all implementation work beyond single-file fixes. You do NOT need to be
-  explicitly told to use it — if the task involves architecture, multiple files, agent teams, or a plan
-  to execute, USE THIS SKILL.
+  Use BEFORE the first edit of ANY change to a git repo that will be committed or opened as a PR:
+  features, bug fixes, single-file fixes, refactors, config. Invoke it with the Skill tool even when the
+  task brief already lists its own steps; doing its steps by hand does not count. Not for pure research
+  or questions with no code change.
 
-  FIRST it RIGHT-SIZES the task (Phase 0): small/reversible work takes a fast lane; only large or
-  high-risk work runs the full pipeline. Minimum process that fits — never maximum-by-default.
+  FIRST it RIGHT-SIZES the task (Phase 0, about 15 seconds): small, reversible work takes a fast lane;
+  only large or high-risk work runs the full pipeline. Minimum process that fits, never maximum by default.
 
-  This skill orchestrates sub-skills — do NOT use them independently for implementation work:
-  - `brainstorming` — design exploration (Phase 1)
-  - `test-driven-development` — TDD per requirement (Phase 3)
-  - `subagent-driven-development` — parallel execution engine (Phase 3)
-  - `verification-before-completion` — verification enforcement (Phase 5)
+  The single orchestrator for implementation. It runs these sub-skills; do not use them on their own for
+  implementation work: brainstorming (Phase 1), test-driven-development and subagent-driven-development
+  (Phase 3), verification-before-completion (Phase 5). Integrates with beads for requirement tracking.
 
-  It also integrates with beads for persistent requirement tracking. Every requirement becomes a beads
-  issue with acceptance criteria, tracked from creation through verified closure.
-
-  Examples of when this skill activates:
-  - "Go implement this"
-  - "Build this feature"
-  - "Execute this plan"
-  - "Implement the architecture"
-  - "Go build it"
-  - "Use the dev process"
-  - "Follow the standard pipeline"
-  - "Implement this"
-  - "Build this"
-  - Any request to implement a PRD, epic, or multi-step plan
+  Activates on: "fix this bug", "fix it", "ship it", "go implement this", "build this feature",
+  "execute this plan", "use the dev process", a bug report that needs a code fix, or any request to
+  implement a PRD, epic, or multi-step plan.
 ---
 
 # Structured Development Process
