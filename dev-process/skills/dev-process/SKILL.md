@@ -2,9 +2,9 @@
 name: dev-process
 description: |
   Use BEFORE the first edit of ANY change to a git repo that will be committed or opened as a PR:
-  features, bug fixes, single-file fixes, refactors, config. Invoke it with the Skill tool even when the
-  task brief already lists its own steps; doing its steps by hand does not count. Not for pure research
-  or questions with no code change.
+  features, bug fixes, single-file fixes, refactors, config, CI failures, review feedback; not for pure
+  research or questions with no code change. Invoke it with the Skill tool even when the task brief
+  already lists its own steps; doing its steps by hand does not count.
 
   FIRST it RIGHT-SIZES the task (Phase 0, about 15 seconds): small, reversible work takes a fast lane;
   only large or high-risk work runs the full pipeline. Minimum process that fits, never maximum by default.
@@ -71,7 +71,8 @@ A pre-mortem is always worth 30 seconds of "how could this go wrong." Scale the 
 
 ## When NOT to use this skill at all
 - Pure research/exploration or a question (no code change).
-- A one-character/one-line edit you can make and verify in a single step (just do it + run the test).
+
+A one-character/one-line edit is not an exception: state Tier S in one line, make it, run the test. No spec, no sub-agents.
 
 ## The Tier-L Pipeline (everything below applies to Tier L; Tier S/M use the lanes above)
 
