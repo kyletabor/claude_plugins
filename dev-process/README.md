@@ -23,8 +23,9 @@ Dev Process calls these sub-skills automatically -- do not invoke them independe
 
 ## Usage
 
-Triggers automatically on any implementation request:
+Triggers automatically before the first edit of any repo change that will be committed or opened as a PR, bug fixes included:
 
+- "Fix this bug"
 - "Go implement this"
 - "Build this feature"
 - "Execute this plan"
