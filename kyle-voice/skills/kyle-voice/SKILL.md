@@ -25,7 +25,7 @@ If Kyle's words or the facts aren't there, ask, or leave a bracketed placeholder
 
 **Unsalesy. Underpromise.** Kyle (2026-10-28): "I hate selling myself ... I never want to overpromise. I always want to underpromise and overdeliver." So:
 - No promised outcomes ("you will own five things"), no hype, no urgency, no CTA-heavy endings.
-- Don't commit to numbers he hasn't committed to (session counts, page counts, timelines). "A three-month plan", not "six workshops".
+- Keep the deal facts Kyle set (price, length, start date, terms) exactly. Don't add counts he hasn't committed to (number of sessions, pages, deliverables): "a three-month plan", not "six workshops". If unsure which kind a number is, bracket it for Kyle.
 - Never show what doesn't exist yet: no links to an RSS feed, notes or products that aren't live.
 - No flexing. Receipts and credentials only where the reader needs them.
 - Say honestly what it takes from the reader (their time, their team's work).
@@ -38,14 +38,14 @@ If Kyle's words or the facts aren't there, ask, or leave a bracketed placeholder
 - Private stories stay private. Examples from a group, a community or another client get rebuilt as fiction, or left out.
 
 **Plain words, in the reader's language.** Kyle (2026-10-29): "too many words in the heading. This could just say: Actively investing in technology."
-- Short headings. Use the term the reader already knows ("the voice of the customer", not "the customer's words").
+- Short headings. Use the term the reader already uses: their word for their customers or clients, their name for their own tools. Kyle picked "the voice of the customer" over "the customer's words" for one client for this reason.
 - Name things for what gets done ("Find your ground truth", "Build the roadmap"), not cute labels or exercise names.
-- Define the abstract noun once: "vision" means a clear, no-BS story everyone can understand and repeat.
+- Define the abstract noun once: "vision" means a clear, plain story everyone in the firm can understand and repeat.
 - Make deliverables tangible: what they actually get (a story deck, a strategy doc, a quarterly roadmap habit).
 - Label made-up examples: "An illustrative example."
 - Words Kyle has rejected: "stealing" (say using, building), "vibe" (cheesy), "concision", "leverage". The company is "KT AI", never "KTAI".
 
-**"AI" as little as possible.** Kyle (2026-10-28): "AI should only be mentioned as a tool to accomplish things. What is the desired outcome that people actually want? That is what I offer." Lead with the outcome. Only claim work Kyle has actually done.
+**"AI" as little as possible.** Kyle (2026-10-28): "AI should only be mentioned as a tool to accomplish things. What is the desired outcome that people actually want? That is what I offer." Lead with the outcome. Plain facts about how data is handled (recording, tools that don't train on it) are fine. Only claim work Kyle has actually done.
 
 **Takeaways first. Each part sets up the next.** Kyle: "The longer it takes to get to the takeaways, the less likely people will read them." And (2026-10-29): "each slide needs to setup the next slide. So think backwards and build the case."
 - Start from where you want the reader to land, then work backwards.
@@ -59,7 +59,7 @@ If Kyle's words or the facts aren't there, ask, or leave a bracketed placeholder
 
 These read as AI to Kyle and to the people he sends things to.
 
-- **Banned words:** delve, foster, leverage, utilize, facilitate, empower, streamline, robust, cutting-edge, game changer, transformative, elevate, embark, supercharge, harness, unlock, synergy, seamless, journey (unless literal).
+- **Banned words:** delve, foster, leverage, utilize, facilitate, empower, streamline, robust, cutting-edge, game changer, transformative, elevate, embark, supercharge, harness, unlock, synergy, seamless, journey (unless literal). These win over words in source notes; only a direct quote in quotation marks keeps them.
 - **Binary contrasts:** "It's not X, it's Y." / "You don't solve X by A, you solve it by B." State Y.
 - **Dramatic reveals and hooks:** "Today you'd get zero answers." "Here's the thing." "What most people miss." State the point or ask the question plainly.
 - **Colon reveals:** "The secret: ...". Write a plain sentence.
@@ -91,9 +91,9 @@ The deck is read on screen, as a PDF and forwarded inside the client's firm. Bui
 
 **Cover, in this order:** the title and a one-line subtitle; "Prepared for <client>" with "Presented to <contact> · <date>" under it; "By Kyle Tabor · KT AI" as a small line.
 
-**Every page:** a small "© <year> KT AI LLC" mark, bottom left, and a page number.
+**Every page:** a small "© <year> KT AI LLC" mark, bottom left. A page number on every page after the cover.
 
-**Copy:** all of sections 2 and 3. Slide titles are short plain statements, a few words. A body is 3-4 lines or bullets at most. Price and terms stated once, plainly.
+**Copy:** all of sections 2 and 3. Slide titles are short plain statements, a few words. A body is 3-4 short lines or bullets, or one simple table, at most. Price and terms stated once, plainly.
 
 **Look:**
 - One theme for the whole deck. Default dark (Kyle's standing preference): near-black background, light text, one warm accent. Never alternate light and dark slides.
