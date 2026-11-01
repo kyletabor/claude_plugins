@@ -44,7 +44,7 @@ These depend on services, paths, or conventions on my machine. Read them for ide
 | Plugin | Version | What it does | Depends on |
 |--------|---------|--------------|------------|
 | **[capture](capture/)** | 1.1.0 | Quick-capture tasks, bookmarks, and ideas to a personal inbox. | A `capture-mcp` MCP server (not in this repo) |
-| **[deploy-standard](deploy-standard/)** | 1.1.0 | Enforces my deploy layout with a PreToolUse hook and SessionStart audit. | `/opt` symlink layout, `/mnt/pi-data`, a `deploy` CLI |
+| **[deploy-standard](deploy-standard/)** | 1.1.1 | Enforces my deploy layout with a PreToolUse hook and SessionStart audit. | `/opt` symlink layout, `/mnt/pi-data`, a `deploy` CLI |
 | **[total-recall](total-recall/)** | 0.1.1 | Front door to my externalized memory system. | The Total Recall backend |
 | **[friction](friction/)** | 0.1.1 | Mines session transcripts for AI friction moments and logs them to a knowledge graph. | Total Recall, piDocs, a local SQLite graph |
 | **[handoff](handoff/)** | 1.2.0 | Save session context and resume in a fresh session without losing the thread. | Handoff directory under `/mnt/pi-data`, claude-mem |
