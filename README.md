@@ -47,6 +47,7 @@ These depend on services, paths, or conventions on my machine. Read them for ide
 | **[deploy-standard](deploy-standard/)** | 1.1.0 | Enforces my deploy layout with a PreToolUse hook and SessionStart audit. | `/opt` symlink layout, `/mnt/pi-data`, a `deploy` CLI |
 | **[total-recall](total-recall/)** | 0.1.1 | Front door to my externalized memory system. | The Total Recall backend |
 | **[friction](friction/)** | 0.1.1 | Mines session transcripts for AI friction moments and logs them to a knowledge graph. | Total Recall, piDocs, a local SQLite graph |
+| **[kyle-voice](kyle-voice/)** | 0.1.0 | My writing rules and client deck/doc house style, built from my own corrections. | My own voice and clients; fork and swap in yours |
 | **[handoff](handoff/)** | 1.2.0 | Save session context and resume in a fresh session without losing the thread. | Handoff directory under `/mnt/pi-data`, claude-mem |
 | **[capa](capa/)** | 1.0.0 | Corrective and Preventive Action: fix the broken process first, then the defect. | SQLite tracking DB under `/mnt/pi-data` |
 | **[gastown](gastown/)** | 1.1.0 | Deprecated. Multi-agent orchestration for Gas Town. Kept for reference only. | Gas Town v0.7 (abandoned upstream) |

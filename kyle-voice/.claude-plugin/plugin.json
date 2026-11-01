@@ -1,0 +1,19 @@
+{
+  "name": "kyle-voice",
+  "version": "0.1.0",
+  "description": "Kyle's own writing rules, built from his corrections: plain, honest, unsalesy copy from his own words, plus the KT AI house style for client decks and docs",
+  "author": {
+    "name": "Kyle Tabor",
+    "url": "https://github.com/kyletabor"
+  },
+  "repository": "https://github.com/kyletabor/claude_plugins",
+  "license": "MIT",
+  "keywords": [
+    "writing",
+    "voice",
+    "copy",
+    "decks",
+    "proposals",
+    "style"
+  ]
+}

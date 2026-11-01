@@ -219,6 +219,20 @@
         "search",
         "ingest"
       ]
+    },
+    {
+      "name": "kyle-voice",
+      "source": "./kyle-voice",
+      "description": "Kyle's own writing rules and KT AI client deck/doc house style, built from his corrections",
+      "version": "0.1.0",
+      "category": "writing",
+      "tags": [
+        "writing",
+        "voice",
+        "copy",
+        "decks",
+        "style"
+      ]
     }
   ]
 }
