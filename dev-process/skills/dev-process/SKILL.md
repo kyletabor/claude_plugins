@@ -591,6 +591,30 @@ If any NO:
 2. Create fix tasks
 3. Loop back to the appropriate phase
 
+### Merge and ship: never ask Kyle (EVERY tier)
+
+Kyle, 2026-11-01: "I NEVER WANT TO EVER MERGE ANYTHING MYSELF." Once a PR passes the gates for its tier, it gets merged and
+shipped with no question to him. Never send him a merge link, a "tap Merge" card, or a "can I merge?" question.
+
+1. **PR body.** Fill the `## Dev process` block: `Tier:` (S, M or L), `Pre-mortem:` and `Verification:` (what you ran and saw).
+   Repos with the merge gate have it in their PR template.
+2. **Independent review.** A second agent, never the builder, reviews the head commit. Post its verdict as a PR comment:
+   - the first line is `## Independent review`;
+   - it names the head commit's short SHA;
+   - its last uppercase verdict word is `APPROVE` or `REJECT`.
+
+   Every tier gets this, Tier S included. For Tier S it's one short review. A new push needs a new review.
+3. **Merge.**
+   - **The repo has `.github/workflows/merge-gate.yml`.** The merge gate merges the PR and starts its deploy by itself.
+     Don't merge it yourself. If the `merge-gate` status on the PR says something is missing, fix that.
+   - **The PR changes `.github/workflows/`, or the repo has no merge gate.** Merge it yourself, with the reviewed head
+     SHA as the expected head, then ship it the way the repo deploys.
+   - **A merge is refused.** Write the refusal word for word as a PR comment, put it on your checklist, and stop. It never
+     goes to Kyle as a question.
+4. **Exceptions.**
+   - A `hold` label, or something Kyle said beforehand to wait on, means don't merge.
+   - Never merge in a repo someone else owns.
+
 ## Quick Reference
 
 | Phase | Gate | Who | Output |
@@ -601,7 +625,7 @@ If any NO:
 | 4. Review | Spec compliant? | Review agent | APPROVE/REJECT |
 | 5a. Test | Tests pass? Count increased? | Builder | Test results |
 | 5b. Verify | Feature works for user? | **Independent verifier** (NOT builder) | Evidence |
-| 6. Ship | All gates + verifier evidence? | Lead | Done or iterate |
+| 6. Ship | All gates + verifier evidence? Review comment posted? | Lead (merge gate merges) | Merged + shipped, or iterate |
 
 ## Tips
 

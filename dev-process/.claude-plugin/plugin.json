@@ -1,6 +1,6 @@
 {
   "name": "dev-process",
-  "version": "2.4.3",
+  "version": "2.5.0",
   "description": "Structured development pipeline with spec-driven architecture, review gates, independent verification, and agent team coordination. Right-sizes the process (Tier S/M/L) and enforces an extensible Verification Suite of gates via the verify-before-close hook.",
   "author": {
     "name": "Kyle Tabor",
