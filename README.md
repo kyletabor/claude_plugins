@@ -28,7 +28,7 @@ Two groups. The first works anywhere. The second is built around my own machine 
 
 | Plugin | Version | What it does |
 |--------|---------|--------------|
-| **[dev-process](dev-process/)** | 2.4.3 | Right-sized development pipeline: spec, review, implement, verify. The orchestrator the rest plug into. Gate tracking uses the [beads](https://github.com/steveyegge/beads) `bd` CLI. |
+| **[dev-process](dev-process/)** | 2.5.0 | Right-sized development pipeline: spec, review, implement, verify. The orchestrator the rest plug into. Gate tracking uses the [beads](https://github.com/steveyegge/beads) `bd` CLI. |
 | **[verification-hooks](verification-hooks/)** | 1.6.0 | **Deprecated 2026-09-16.** Hooks removed; no-op. Independent verification now lives in dev-process. Kept for reference. |
 | **[pre-mortem](pre-mortem/)** | 1.1.0 | Define success and failure criteria before starting multi-step work. |
 | **[fable-mode](fable-mode/)** | 0.1.1 | Judgment habits as skills and Stop hooks: check preconditions, answer first, prove UI changes, never hand back uncommitted work. |

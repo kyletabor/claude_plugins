@@ -51,8 +51,8 @@ no risk triggers → fast lane"*). Default to the SMALLEST tier; **risk triggers
 
 | Tier | When | Process that runs | Sub-agents |
 |------|------|-------------------|------------|
-| **S — Fast lane** | Small AND zero risk triggers | Micro pre-mortem (1 line) → implement → **machine gate** (tests + build + types pass) → self-check (`verification-before-completion`) → commit. NO spec doc, NO explore swarm, NO separate reviewers, NO independent-verifier. | 0–1 |
-| **M — Spec-lite** | Medium, OR Small+a risk trigger | Light pre-mortem → short inline spec (goal · files · acceptance) → TDD → machine gate → **one** combined review → risk-typed verification (see Phase 5). | 1–3 |
+| **S — Fast lane** | Small AND zero risk triggers | Micro pre-mortem (1 line) → implement → **machine gate** (tests + build + types pass) → self-check (`verification-before-completion`) → commit → PR with one short Independent review (Phase 6, "Merge and ship"). NO spec doc, NO explore swarm, NO spec/plan reviewers, NO independent-verifier. | 0–1 (the pre-merge reviewer) |
+| **M — Spec-lite** | Medium, OR Small+a risk trigger | Light pre-mortem → short inline spec (goal · files · acceptance) → TDD → machine gate → **one** combined review (it is also the PR's Independent review when it names the final head SHA) → risk-typed verification (see Phase 5). | 1–3 |
 | **L — Full pipeline** | Large, epic, or high blast-radius | The full Phase 1→6 below, unchanged. Full pre-mortem card + GATE beads + independent verification + staging gate. | 5–8+ |
 
 **Then jump to the matching lane.** Tier S/M execute the lightweight steps above and skip to Phase 5's
@@ -72,7 +72,7 @@ A pre-mortem is always worth 30 seconds of "how could this go wrong." Scale the 
 ## When NOT to use this skill at all
 - Pure research/exploration or a question (no code change).
 
-A one-character/one-line edit is not an exception: state Tier S in one line, make it, run the test. No spec, no sub-agents.
+A one-character/one-line edit is not an exception: state Tier S in one line, make it, run the test. No spec, and no sub-agents beyond the one pre-merge reviewer.
 
 ## The Tier-L Pipeline (everything below applies to Tier L; Tier S/M use the lanes above)
 
@@ -585,11 +585,43 @@ If all YES:
    bd list  # Show all issues — should all be closed with verification evidence
    ```
 5. Report summary to user WITH verifier evidence AND beads trail attached
+6. Merge and ship (below)
 
 If any NO:
 1. Document what failed and why
 2. Create fix tasks
 3. Loop back to the appropriate phase
+
+### Merge and ship: never ask the owner (EVERY tier, when the owner opted in)
+
+This applies when the repo owner has opted in. Opted in means the repo has `.github/workflows/merge-gate.yml`, or the
+owner's own instructions say to merge without asking. Kyle Tabor, who maintains this plugin, opted in on 2026-11-01: "I
+NEVER WANT TO EVER MERGE ANYTHING MYSELF." Where the owner opted in, a PR that passes its tier's gates gets merged and
+shipped with no question to them. Never send them a merge link, a "tap Merge" card, or a "can I merge?" question. Where
+the owner hasn't opted in, follow their instructions about merging.
+
+1. **PR body.** Fill the `## Dev process` block: `Tier:` (S, M or L), `Pre-mortem:` and `Verification:` (what you ran and saw).
+   Repos with the merge gate have it in their PR template.
+2. **Independent review.** A second agent, never the builder, reviews the head commit. The lead posts its verdict as a PR
+   comment from the owner's account, because the gate only counts owner comments:
+   - the first line is `## Independent review`;
+   - it names the head commit's short SHA;
+   - its last uppercase verdict word is `APPROVE` or `REJECT`.
+
+   Every tier gets this, Tier S included. For Tier S it's one short review. For Tier M, the one combined review counts when
+   it names the final head SHA. A new push needs a new review. On REJECT: fix, push and review again, at most 2 loops,
+   then surface it.
+3. **Merge.** Only when CI is green and the newest Independent review on the head SHA ends `APPROVE`.
+   - **The repo has `merge-gate.yml` and the PR doesn't touch `.github/workflows/`.** The merge gate merges the PR and
+     starts its deploy by itself. Don't merge it yourself. If the `merge-gate` status on the PR says something is
+     missing, fix that.
+   - **The PR touches `.github/workflows/` (the gate can't merge those), or the repo has no merge gate.** Merge it
+     yourself, with the reviewed head SHA as the expected head, then ship it the way the repo deploys.
+   - **A merge is refused.** Write the refusal word for word as a PR comment, put it on your checklist, and stop. It
+     never goes to the owner as a question.
+4. **Exceptions.**
+   - A `hold` label, or something the owner said beforehand to wait on, means don't merge.
+   - Never merge in a repo the owner doesn't own, such as a partner's app.
 
 ## Quick Reference
 
@@ -601,7 +633,7 @@ If any NO:
 | 4. Review | Spec compliant? | Review agent | APPROVE/REJECT |
 | 5a. Test | Tests pass? Count increased? | Builder | Test results |
 | 5b. Verify | Feature works for user? | **Independent verifier** (NOT builder) | Evidence |
-| 6. Ship | All gates + verifier evidence? | Lead | Done or iterate |
+| 6. Ship | All gates + verifier evidence? Review comment posted? | Merge gate, else lead | Merged + shipped, or iterate |
 
 ## Tips
 
