@@ -468,7 +468,7 @@ than one.
 3. **Regression check**: existing functionality isn't broken.
 
 This is the **machine gate**. For **Tier S with no risk triggers, a green machine gate + the
-`verification-before-completion` self-check is sufficient — STOP HERE.** No separate verifier agent.
+`verification-before-completion` self-check is sufficient — skip 5b and go to Phase 6.** No separate verifier agent.
 
 ### 5b: Independent Verification — fires for Tier M/L or ANY risk trigger (NOT for clean Tier S)
 
@@ -568,7 +568,10 @@ bd list --status=open
 If ANY beads issues for this feature remain open, you are NOT done. Do NOT claim completion.
 Go back to the phase where the open requirement needs work.
 
-### Pre-ship checklist (all must be YES):
+### Pre-ship checklist (Tier L; all must be YES)
+
+Tier S and M check only their own lane's gates (the Phase 0 table), then go straight to "Merge and ship" below.
+
 - [ ] Spec includes Current State Verification with command output?
 - [ ] Acceptance criteria are executable (not prose)?
 - [ ] Test count increased? (before: ___, after: ___)
@@ -602,7 +605,7 @@ the owner hasn't opted in, follow their instructions about merging.
 
 1. **PR body.** Fill the `## Dev process` block: `Tier:` (S, M or L), `Pre-mortem:` and `Verification:` (what you ran and saw).
    Repos with the merge gate have it in their PR template.
-2. **Independent review.** A second agent, never the builder, reviews the head commit. The lead posts its verdict as a PR
+2. **Independent review.** A second agent, never the builder, reviews the head commit. The lead posts its verdict word for word as a PR
    comment from the owner's account, because the gate only counts owner comments:
    - the first line is `## Independent review`;
    - it names the head commit's short SHA;
@@ -621,7 +624,7 @@ the owner hasn't opted in, follow their instructions about merging.
      never goes to the owner as a question.
 4. **Exceptions.**
    - A `hold` label, or something the owner said beforehand to wait on, means don't merge.
-   - Never merge in a repo the owner doesn't own, such as a partner's app.
+   - Never merge in a repo that the person you work for doesn't own, such as a partner's app.
 
 ## Quick Reference
 
