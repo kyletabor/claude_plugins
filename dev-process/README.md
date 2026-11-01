@@ -40,7 +40,7 @@ Triggers automatically before the first edit of any repo change that will be com
 5. **Test + Verify** -- run tests, then independent verifier (not the builder) confirms the feature works
 6. **Verdict** -- pre-ship checklist, beads gate, ship or iterate
 
-Shipping, every tier: the PR body has a filled `## Dev process` block, and a second agent's verdict is posted as a `## Independent review` comment naming the head SHA. Then the PR gets merged without asking the owner. A repo with the merge gate merges and deploys it by itself.
+Shipping, every tier, when the repo owner opted in (the repo has the merge gate, or the owner's instructions say so): the PR body has a filled `## Dev process` block, and a second agent's verdict is posted as a `## Independent review` comment naming the head SHA. Then the PR gets merged without asking the owner. A repo with the merge gate merges and deploys it by itself.
 
 ## Installation
 
