@@ -1,8 +1,8 @@
 export const meta = {
   name: 'dev-process-pipeline',
-  description: 'Bounded Tier-L dev-process pipeline: explore -> spec -> implement -> review -> risk-typed verify, with FIXED fan-out, turn-capped agents, and compact summary handoffs (no runaway re-reads). The deterministic engine for the dev-process skill Tier L. v1 — battle-test on a real epic before making it the default.',
+  description: 'Bounded Tier-L dev-process pipeline: explore -> spec -> implement -> review -> risk-typed verify, with FIXED fan-out, turn-capped agents, and compact summary handoffs (no runaway re-reads). The default engine for a Tier-L piece in the dev-process skill; every helper is a hard-capped agent type.',
   phases: [
-    { title: 'Explore', detail: 'up to 3 scoped explorers -> one shared codebase digest' },
+    { title: 'Explore', detail: '1 scoped explorer by default (args.explorers up to 3) -> one shared codebase digest' },
     { title: 'Spec', detail: 'one planner writes the architecture spec + legs from the digest' },
     { title: 'Implement', detail: 'one turn-capped agent per independent leg' },
     { title: 'Review', detail: 'one combined spec-compliance + quality review of the diff' },
@@ -10,18 +10,20 @@ export const meta = {
   ],
 }
 
-// ---- args: pass {task, repo, appUrl, userFacing} OR a bare task string ----
+// ---- args: pass {task, repo, appUrl, userFacing, realData, explorers} OR a bare task string ----
 const A = (typeof args === 'string') ? { task: args } : (args || {})
 const TASK = A.task || 'No task provided — describe the feature in args.task'
 const REPO = A.repo || '.'
 const APP_URL = A.appUrl || ''
 const USER_FACING = A.userFacing === true || !!APP_URL
+const REAL_DATA = A.realData || ''
 
-// Right-size the explorer fan-out to the token budget (the anti-blowup guard).
-const EXPLORERS = (budget.total && budget.total < 300000) ? 1 : 3
+// One explorer by default; up to 3 only when asked for (a truly unfamiliar codebase). Anti-blowup guard.
+const EXPLORERS = Math.max(1, Math.min(3, Number(A.explorers) || 1))
 
-// Every agent is told to cap itself: there is no per-agent maxTurns in the Workflow API,
-// so the cap is (a) a hard prompt instruction and (b) the fixed, non-looping structure.
+// Hard caps come from the agent types: dev-process:piece-builder (maxTurns 50), piece-reviewer (25) and
+// independent-verifier (30) set maxTurns in their frontmatter, so Claude Code stops them. The prompt line
+// below and the fixed, non-looping structure are the backstop (the Explore and Spec agents have no type cap).
 const CAP = 'HARD LIMIT: finish within ~20 tool calls. If blocked after 2 attempts, STOP and return what you have with a clear blocker note. Do NOT re-read the whole codebase — work from the scope/paths you were given.'
 
 const DIGEST_SCHEMA = { type: 'object', required: ['summary', 'files'], properties: {
@@ -81,7 +83,7 @@ const legs = (spec.legs && spec.legs.length) ? spec.legs : [{ name: 'implement',
 phase('Implement')
 const implThunks = legs.map((leg, i) => () =>
   agent(`Implement this leg of the spec in repo ${REPO}. Follow the spec exactly; write tests alongside code; commit when done.\n\nLEG: ${leg.name}\nSCOPE: ${leg.scope}\nFILES: ${(leg.files || []).join(', ') || '(determine from scope)'}\n\nSPEC:\n${spec.spec}\n\n${CAP}`,
-    { label: `impl:${leg.name || i}`, phase: 'Implement', schema: IMPL_SCHEMA })
+    { label: `impl:${leg.name || i}`, phase: 'Implement', agentType: 'dev-process:piece-builder', schema: IMPL_SCHEMA })
 )
 // Independent legs can run together; if any leg is non-independent, run sequentially to avoid file conflicts.
 const allIndependent = legs.every(l => l.independent !== false)
@@ -97,7 +99,7 @@ if (allIndependent) {
 phase('Review')
 const review = await agent(
   `Review the implementation against the spec in repo ${REPO}. Run \`git diff\` to see changes. Check: spec-compliance, code quality, test coverage, security. ONE pass — be decisive.\n\nSPEC:\n${spec.spec}\n\nACCEPTANCE:\n${JSON.stringify(spec.acceptance)}\n\nIMPLEMENTATION SUMMARIES:\n${JSON.stringify(impls)}\n\n${CAP}`,
-  { label: 'review', phase: 'Review', schema: REVIEW_SCHEMA })
+  { label: 'review', phase: 'Review', agentType: 'dev-process:piece-reviewer', schema: REVIEW_SCHEMA })
 
 // ---------- Phase 5: Verify (risk-typed; NOT the builder) ----------
 phase('Verify')
@@ -109,8 +111,8 @@ if (USER_FACING) {
 }
 // Backend / integration verification always runs (a green machine + integration gate is the floor).
 verifyThunks.push(() => agent(
-  `Independently verify this change at the integration level in repo ${REPO}. Do NOT trust the builder. Run the unit suite AND the integration/workflow test(s) that exercise the REAL end-to-end flow (real inputs->outputs, not mocks). If none covers this path, run or write one. Confirm each acceptance criterion. You CANNOT ship — run, inspect, report with command output.\n\nACCEPTANCE:\n${JSON.stringify(spec.acceptance)}\n\n${CAP}`,
-  { label: 'verify:backend', phase: 'Verify', agentType: 'verification-hooks:independent-verifier', schema: VERIFY_SCHEMA }))
+  `Independently verify this change at the integration level in repo ${REPO}. Do NOT trust the builder. Run the unit suite AND the integration/workflow test(s) that exercise the REAL end-to-end flow (real inputs->outputs, not mocks). If none covers this path, run or write one. Confirm each acceptance criterion.${REAL_DATA ? ` Then run it on the owner's REAL data at ${REAL_DATA} (not fixtures) and report what they would see.` : ''} You CANNOT ship — run, inspect, report with command output.\n\nACCEPTANCE:\n${JSON.stringify(spec.acceptance)}\n\n${CAP}`,
+  { label: 'verify:backend', phase: 'Verify', agentType: 'dev-process:independent-verifier', schema: VERIFY_SCHEMA }))
 
 const verdicts = (await parallel(verifyThunks)).filter(Boolean)
 
@@ -121,5 +123,6 @@ return {
   reviewVerdict: review.verdict,
   reviewFindings: review.findings,
   verification: verdicts,
+  realDataChecked: !!REAL_DATA,
   allPass: review.verdict === 'APPROVE' && verdicts.every(v => v.pass),
 }

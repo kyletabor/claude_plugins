@@ -30,6 +30,7 @@ tools:
   - mcp__plugin_playwright_playwright__browser_wait_for
   - mcp__plugin_playwright_playwright__browser_console_messages
   - mcp__plugin_playwright_playwright__browser_network_requests
+maxTurns: 30
 ---
 
 # Independent Verifier
