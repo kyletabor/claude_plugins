@@ -21,7 +21,6 @@ Dev Process calls these sub-skills automatically -- do not invoke them independe
 
 - `brainstorming` -- design exploration (Phase 1)
 - `test-driven-development` -- TDD per requirement (Phase 3)
-- `subagent-driven-development` -- parallel execution (Phase 3)
 - `verification-before-completion` -- verification enforcement (Phase 5)
 
 ## Usage

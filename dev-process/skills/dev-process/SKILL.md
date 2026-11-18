@@ -10,8 +10,8 @@ description: |
   only large or high-risk work runs the full pipeline. Minimum process that fits, never maximum by default.
 
   The single orchestrator for implementation. It runs these sub-skills; do not use them on their own for
-  implementation work: brainstorming (Phase 1), test-driven-development and subagent-driven-development
-  (Phase 3), verification-before-completion (Phase 5). Integrates with beads for requirement tracking.
+  implementation work: brainstorming (Phase 1), test-driven-development (Phase 3),
+  verification-before-completion (Phase 5). Integrates with beads for requirement tracking.
 
   Activates on: "fix this bug", "fix it", "ship it", "go implement this", "build this feature",
   "execute this plan", "use the dev process", a bug report that needs a code fix, or any request to
@@ -54,7 +54,7 @@ no risk triggers → fast lane"*). Default to the SMALLEST tier; **risk triggers
 |------|------|-------------------|------------|
 | **S — Fast lane** | Small AND zero risk triggers | Micro pre-mortem (1 line) → implement → **machine gate** (tests + build + types pass) → self-check (`verification-before-completion`) → commit → PR with one short Independent review (Phase 6, "Merge and ship"). NO spec doc, NO explore swarm, NO spec/plan reviewers, NO independent-verifier. | 0–1 (the pre-merge reviewer) |
 | **M — Spec-lite** | Medium, OR Small+a risk trigger | Light pre-mortem → short inline spec (goal · files · acceptance) → TDD → machine gate → **one** combined review (it is also the PR's Independent review when it names the final head SHA) → risk-typed verification (see Phase 5). | 1–3, all hard-capped |
-| **L — Full pipeline** | A large or high blast-radius **piece** (never a whole epic by default) | The full Phase 1→6 below, run by default as the bounded workflow. Full pre-mortem card + GATE beads + independent verification + staging gate. | 4–6, all hard-capped |
+| **L — Full pipeline** | A large or high blast-radius **piece** (never a whole epic by default) | The full Phase 1→6 below, run by default as the bounded workflow. Full pre-mortem card + GATE beads + independent verification + staging gate. | 5–7, fixed by the workflow |
 
 **Then jump to the matching lane.** Tier S/M execute the lightweight steps above and skip to Phase 5's
 risk-typed verification + Phase 6 ship. Only **Tier L** runs the complete Phase 1–6 pipeline that follows.
@@ -73,7 +73,8 @@ helpers. It used about 45% of the owner's weekly usage limit in a day, with noth
 - **Every piece states its budget before work starts**, in its Phase 0 line, as helpers × hard turn cap.
   Example: *"Tier M — 3 files, ships a plugin → budget: 1 builder × 50 + 1 reviewer × 25 turns"*.
   Defaults: Tier S = only the one pre-merge reviewer; Tier M = 1 builder + 1 reviewer (+1 verifier if
-  a risk trigger needs it); Tier L = the workflow's shape, at most 6 capped helpers.
+  a risk trigger needs it); Tier L = the workflow's fixed shape: 1 explorer, 1 planner, at most 2
+  builders, 1 reviewer, 1–2 verifiers. A Tier-L piece that needs more legs gets re-cut, not more builders.
 - **The same budget on every model.** No model makes a big fan-out "affordable": the owner's usage limit
   is shared by all their projects. Fable, Opus or `ultracode` never raise the ceiling.
 - **Over budget means stop and report.** If a piece needs more than its budget, stop, write a state summary
@@ -94,7 +95,8 @@ helpers. It used about 45% of the owner's weekly usage limit in a day, with noth
   | Code or spec reviewer (read-only) | `dev-process:piece-reviewer` | 25 turns |
   | Independent verifier (read-only) | `dev-process:independent-verifier` | 30 turns |
 
-  Never spawn a builder as `general-purpose`, `claude` or any other uncapped type. Uncapped builders ran
+  The one exception: read-only `Explore` and `Plan` helpers, within the fan-out ceiling (they can't edit,
+  and Tier L uses one of each). Never spawn a builder as `general-purpose`, `claude` or any other uncapped type. Uncapped builders ran
   900–1,159 steps each against a ~30-turn cap that only existed as prose. A helper that hits its cap has
   outgrown its scope: cut the piece smaller instead of raising the cap.
 - **A fresh helper per round.** A fix round gets a new capped builder with a short handoff note (what
@@ -427,8 +429,8 @@ Follow the dependency diagram from the spec. Every implementation helper is a `d
 
 - **Use the `test-driven-development` skill** for each requirement. Write the test first, then the
   implementation. This is not optional — every requirement gets TDD treatment.
-- **Use the `subagent-driven-development` skill** to parallelize work across independent requirements.
-  Each implementation leg runs as a subagent with isolated scope.
+- **Do NOT use `subagent-driven-development` or agent teams** to spawn implementers: they start uncapped
+  agents. Each implementation leg is one `dev-process:piece-builder` with isolated scope.
 
 ### Progress Tracking
 
@@ -437,12 +439,11 @@ After each requirement is implemented (code + tests written):
 2. Git checkpoint: commit the requirement with a clear message (e.g., "Implement R3: [name]")
 3. Do NOT batch commits — one commit per requirement keeps the trail clean
 
-### Team Setup
+### Builder Setup
 
-1. Create a team (if not already in one)
-2. Create tasks for each implementation leg
-3. Set up dependencies between tasks
-4. Spawn implementation agents for each independent leg
+1. Create tasks for each implementation leg (at most 2 legs for a Tier-L piece; more means re-cut it)
+2. Set up dependencies between tasks
+3. Spawn one `dev-process:piece-builder` per leg; independent legs may run together
 
 ### Implementation Agent Instructions Template
 

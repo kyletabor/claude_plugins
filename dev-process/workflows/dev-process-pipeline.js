@@ -4,7 +4,7 @@ export const meta = {
   phases: [
     { title: 'Explore', detail: '1 scoped explorer by default (args.explorers up to 3) -> one shared codebase digest' },
     { title: 'Spec', detail: 'one planner writes the architecture spec + legs from the digest' },
-    { title: 'Implement', detail: 'one turn-capped agent per independent leg' },
+    { title: 'Implement', detail: 'one hard-capped piece-builder per leg, at most MAX_LEGS (2) legs' },
     { title: 'Review', detail: 'one combined spec-compliance + quality review of the diff' },
     { title: 'Verify', detail: 'risk-typed: UI (Playwright) and/or backend (unit + integration)' },
   ],
@@ -24,7 +24,7 @@ const EXPLORERS = Math.max(1, Math.min(3, Number(A.explorers) || 1))
 // Hard caps come from the agent types: dev-process:piece-builder (maxTurns 50), piece-reviewer (25) and
 // independent-verifier (30) set maxTurns in their frontmatter, so Claude Code stops them. The prompt line
 // below and the fixed, non-looping structure are the backstop (the Explore and Spec agents have no type cap).
-const CAP = 'HARD LIMIT: finish within ~20 tool calls. If blocked after 2 attempts, STOP and return what you have with a clear blocker note. Do NOT re-read the whole codebase — work from the scope/paths you were given.'
+const CAP = 'LIMIT: aim to finish within ~20 tool calls (builders ~30; Claude Code hard-stops builders at 50 and reviewers at 25). If blocked after 2 attempts, STOP and return what you have with a clear blocker note. Do NOT re-read the whole codebase — work from the scope/paths you were given.'
 
 const DIGEST_SCHEMA = { type: 'object', required: ['summary', 'files'], properties: {
   lens: { type: 'string' },
@@ -78,6 +78,16 @@ const spec = await agent(
   { label: 'spec', phase: 'Spec', schema: SPEC_SCHEMA })
 
 const legs = (spec.legs && spec.legs.length) ? spec.legs : [{ name: 'implement', scope: TASK, files: [], independent: true }]
+
+// A Tier-L piece gets at most MAX_LEGS builders. More legs means the piece is too big: stop and report
+// so the lead re-cuts it, instead of quietly spawning more builders (the up-to-10-helpers failure).
+const MAX_LEGS = 2
+if (legs.length > MAX_LEGS) {
+  return {
+    task: TASK, tooBig: true, legs: legs.map(l => l.name), allPass: false,
+    message: `The planner split this piece into ${legs.length} legs; the cap is ${MAX_LEGS}. Nothing was built. Re-cut it into smaller pieces and run each one on its own.`,
+  }
+}
 
 // ---------- Phase 3: Implement (one capped agent per leg; independent legs in parallel) ----------
 phase('Implement')

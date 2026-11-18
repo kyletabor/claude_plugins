@@ -15,9 +15,12 @@ OUT="$ROOT/evals/results/$(date -u +%Y%m%dT%H%M%SZ)-$MODEL"
 mkdir -p "$OUT"
 echo "dev-process eval: model=$MODEL runs=$RUNS cost cap=\$$COST -> $OUT"
 # --threshold 0: low scores are the finding here, not a failure of the script.
+rc=0
 claude plugin eval "$ROOT" \
   --model "$MODEL" --runs "$RUNS" --ablation with-without \
   --max-cost-usd "$COST" --threshold 0 \
   --no-publish --trust-plugin \
-  --output-dir "$OUT" --report "$OUT/report.html"
+  --output-dir "$OUT" --report "$OUT/report.html" || rc=$?
+# rc 2 = the cost cap was hit; the report still holds the partial results.
 echo "Report: $OUT/report.html  (cases with no gap over the baseline are candidates to trim)"
+exit "$rc"
