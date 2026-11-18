@@ -19,8 +19,10 @@ when_to_use:
 
 # Deploy Standard v1
 
+> **Host note (2026-10-04):** this standard was written for the Orange Pi (Linux, systemd, `/opt`, `/mnt/pi-data`). Apps are moving to the Mac Studio, where they run in Docker via Colima from `~/ai/apps` with data under `~/ai/data`. Until the standard is ported, follow its rules (Docker, staging + prod, bind-mounted data, rollback) and treat Orange Pi paths as Orange Pi only.
+
 **Every deployable Kyle-owned project uses this standard.** No exceptions. Canonical spec:
-`~/projects/kyle-dev-infra/docs/deploy-standard.md`.
+`~/ai/projects/kyle-dev-infra/docs/deploy-standard.md` (in a cloud session: `docs/deploy-standard.md` in the kyletabor/kyle-dev-infra repo).
 
 ## When to use
 
@@ -134,5 +136,5 @@ deploy doctor                          # verifies docker, yq, jq, tailscale, UID
 
 ## Full spec
 
-`~/projects/kyle-dev-infra/docs/deploy-standard.md` — read this when authoring new `.deploy.yaml`
+`~/ai/projects/kyle-dev-infra/docs/deploy-standard.md` (in a cloud session: `docs/deploy-standard.md` in the kyletabor/kyle-dev-infra repo) — read this when authoring new `.deploy.yaml`
 files, migrating a project, or debugging the deploy tool.
