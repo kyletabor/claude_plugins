@@ -10,8 +10,8 @@ description: |
   only large or high-risk work runs the full pipeline. Minimum process that fits, never maximum by default.
 
   The single orchestrator for implementation. It runs these sub-skills; do not use them on their own for
-  implementation work: brainstorming (Phase 1), test-driven-development and subagent-driven-development
-  (Phase 3), verification-before-completion (Phase 5). Integrates with beads for requirement tracking.
+  implementation work: brainstorming (Phase 1), test-driven-development (Phase 3),
+  verification-before-completion (Phase 5). Integrates with beads for requirement tracking.
 
   Activates on: "fix this bug", "fix it", "ship it", "go implement this", "build this feature",
   "execute this plan", "use the dev process", a bug report that needs a code fix, or any request to
@@ -37,7 +37,8 @@ no risk triggers → fast lane"*). Default to the SMALLEST tier; **risk triggers
 ### Axis 1 — Size
 - **Small**: 1–2 files, reversible, an obvious/local change, a bugfix with a known cause.
 - **Medium**: several files, moderate logic, a new internal module or multi-file refactor.
-- **Large**: an epic, novel architecture, or many interdependent legs.
+- **Large**: one piece that is big or novel on its own (new architecture, many interdependent files).
+  An epic is NOT a size: split it first (see "Size each piece, not the epic" below).
 
 ### Axis 2 — Risk triggers (if ANY are true, the task is at LEAST Tier M and full verification fires)
 1. Touches a **prod URL / deployed service**
@@ -52,18 +53,64 @@ no risk triggers → fast lane"*). Default to the SMALLEST tier; **risk triggers
 | Tier | When | Process that runs | Sub-agents |
 |------|------|-------------------|------------|
 | **S — Fast lane** | Small AND zero risk triggers | Micro pre-mortem (1 line) → implement → **machine gate** (tests + build + types pass) → self-check (`verification-before-completion`) → commit → PR with one short Independent review (Phase 6, "Merge and ship"). NO spec doc, NO explore swarm, NO spec/plan reviewers, NO independent-verifier. | 0–1 (the pre-merge reviewer) |
-| **M — Spec-lite** | Medium, OR Small+a risk trigger | Light pre-mortem → short inline spec (goal · files · acceptance) → TDD → machine gate → **one** combined review (it is also the PR's Independent review when it names the final head SHA) → risk-typed verification (see Phase 5). | 1–3 |
-| **L — Full pipeline** | Large, epic, or high blast-radius | The full Phase 1→6 below, unchanged. Full pre-mortem card + GATE beads + independent verification + staging gate. | 5–8+ |
+| **M — Spec-lite** | Medium, OR Small+a risk trigger | Light pre-mortem → short inline spec (goal · files · acceptance) → TDD → machine gate → **one** combined review (it is also the PR's Independent review when it names the final head SHA) → risk-typed verification (see Phase 5). | 1–3, all hard-capped |
+| **L — Full pipeline** | A large or high blast-radius **piece** (never a whole epic by default) | The full Phase 1→6 below, run by default as the bounded workflow. Full pre-mortem card + GATE beads + independent verification + staging gate. | 5–7, fixed by the workflow |
 
 **Then jump to the matching lane.** Tier S/M execute the lightweight steps above and skip to Phase 5's
 risk-typed verification + Phase 6 ship. Only **Tier L** runs the complete Phase 1–6 pipeline that follows.
 
-### Resource budget (applies to every tier — prevents runaway token cost)
-- **Fan-out ceiling**: Tier S = 0 explore agents, Tier M = 0–1, Tier L = up to 3. Never a fixed floor.
-- **Agent turn caps**: soft cap ~15 turns (agent summarizes + presents stop/continue), hard cap ~30 (terminate with a state summary). Cap any fix→re-review loop at **2** iterations.
+### Size each piece, not the epic (MANDATORY for multi-part work)
+An epic, milestone or multi-part plan never gets one tier for the whole thing. Split it into pieces that
+each end in something the owner can use, then give **each piece its own Phase 0 line**: tier, budget, and
+its real-data check. Most pieces of an epic are Tier S or M. Tier L is for the rare piece that is large or
+risky on its own. One full pre-mortem card covers the epic; each piece gets the micro or light pre-mortem
+its own tier calls for. Build one piece at a time, the piece the owner can use soonest first.
+
+*Why:* one epic was sized Tier L as a whole, so every small piece got the full pipeline and up to 10
+helpers. It used about 45% of the owner's weekly usage limit in a day, with nothing usable yet.
+
+### Resource budget (every tier, every model — prevents runaway token cost)
+- **Every piece states its budget before work starts**, in its Phase 0 line, as helpers × hard turn cap.
+  Example: *"Tier M — 3 files, ships a plugin → budget: 1 builder × 50 + 1 reviewer × 25 turns"*.
+  Defaults: Tier S = only the one pre-merge reviewer; Tier M = 1 builder + 1 reviewer (+1 verifier if
+  a risk trigger needs it); Tier L = the workflow's fixed shape: 1 explorer, 1 planner, at most 2
+  builders, 1 reviewer, 1–2 verifiers. A Tier-L piece that needs more legs gets re-cut, not more builders.
+- **The same budget on every model.** No model makes a big fan-out "affordable": the owner's usage limit
+  is shared by all their projects. Fable, Opus or `ultracode` never raise the ceiling.
+- **Over budget means stop and report.** If a piece needs more than its budget, stop, write a state summary
+  (done, left, why it ran over) and ask the owner before spending more. Don't quietly start another
+  helper or another round.
+- **Check the limit before Tier L.** Where a usage readout exists (for example `get_session` →
+  `rate_limit_info` in cloud sessions), check it before a Tier-L piece and say what the piece will cost.
+- **Keep the lead cheap too.** One background wait instead of polling; no status wake-ups that re-read
+  a big context for nothing.
+- **Fan-out ceiling**: Tier S = 0 explore agents, Tier M = 0–1, Tier L = 1 by default (up to 3 only for a
+  truly unfamiliar codebase). Never a fixed floor.
+- **Hard turn caps, enforced by Claude Code (not requested in a prompt).** Spawn helpers ONLY as this
+  plugin's capped agent types. Their `maxTurns` setting makes Claude Code stop them at the cap:
+
+  | Job | Agent type | Hard cap |
+  |-----|------------|----------|
+  | Builder (one piece, leg or fix round) | `dev-process:piece-builder` | 50 turns |
+  | Code or spec reviewer (read-only) | `dev-process:piece-reviewer` | 25 turns |
+  | Independent verifier (read-only) | `dev-process:independent-verifier` | 30 turns |
+
+  The one exception: read-only `Explore` and `Plan` helpers, within the fan-out ceiling (they can't edit,
+  and Tier L uses one of each). Never spawn a builder as `general-purpose`, `claude` or any other uncapped type. Uncapped builders ran
+  900–1,159 steps each against a ~30-turn cap that only existed as prose. A helper that hits its cap has
+  outgrown its scope: cut the piece smaller instead of raising the cap.
+- **A fresh helper per round.** A fix round gets a new capped builder with a short handoff note (what
+  failed, which files), never a resumed old builder whose context keeps growing. Cap any fix→re-review
+  loop at **2** rounds.
 - **Pass digests, not transcripts**: each sub-agent gets a pre-scoped task (relevant spec section + file paths) and returns a 1–2k-token summary. Never "read the whole spec and codebase."
 - **Loop detection**: if a step produces no diff / the same test failure twice / a repeated re-plan → abort and surface it, don't grind.
-- **Model/effort awareness**: on Opus (high reliability, no token pressure) the full fan-out is affordable. On Fable / `ultracode`, HARD-cap fan-out to 2–4 workers, prefer a single long-running agent over a swarm, and do not stack redundant verification. Right-size effort = f(tier × model).
+
+### Real-data gate: every piece ends usable (multi-part work)
+A piece is not done until the owner can use it on **their real data** today, and you showed it: run it on
+the owner's actual data (their notes, their repo, their account; not fixtures or a tiny sample), within
+the project's privacy rules, and report what they would see. The next piece starts only after this
+passes. A piece that can't be used on real data by itself is cut wrong: re-cut it so it ends in something
+usable. Green tests or an APPROVE review are not this gate.
 
 ### Pre-mortem is ALWAYS done — its depth right-sizes
 A pre-mortem is always worth 30 seconds of "how could this go wrong." Scale the rigor, never skip it:
@@ -80,19 +127,20 @@ A one-character/one-line edit is not an exception: state Tier S in one line, mak
 Phase 1: Spec → Phase 2: Spec Review → Phase 3: Implement → Phase 4: Code Review → Phase 5: Test → Phase 6: Verdict
 ```
 
-### Optional: run the Tier-L pipeline as a bounded workflow (deterministic engine)
+### Default for a Tier-L piece: run it as the bounded workflow
 
-For Tier-L work you MAY execute the phases below as a single **bounded workflow** instead of hand-orchestrating
-them. It ships with this plugin and enforces fixed fan-out, turn-capped agents, and compact summary handoffs —
-the structure that prevents token blowups:
+A Tier-L piece runs as one **bounded workflow** by default, instead of hand-orchestrating the phases. The
+workflow ships with this plugin. It fixes the fan-out (1 explorer, 1 planner, 1 builder per leg, 1
+reviewer, 1–2 verifiers), spawns every helper as a capped agent type, and hands compact summaries between
+phases:
 
-> `Workflow({ scriptPath: "<plugin-root>/workflows/dev-process-pipeline.js", args: { task: "<what to build>", repo: "<path>", appUrl: "<url if user-facing>", userFacing: true } })`
+> `Workflow({ scriptPath: "<plugin-root>/workflows/dev-process-pipeline.js", args: { task: "<the piece to build>", repo: "<path>", appUrl: "<url if user-facing>", userFacing: true, realData: "<where the owner's real data lives>" } })`
 
 The plugin root is two levels up from this skill's "Base directory" line (`.../dev-process/`).
 
-**Status: v1 — not yet the default.** Until it's battle-tested on a real epic, the hand-orchestrated phases
-below remain the proven path. Use the workflow when you want deterministic, capped orchestration; otherwise
-follow the inline phases. The phase contracts are identical either way.
+Run the phases by hand only when the Workflow tool isn't available in the session or its own rules don't
+allow it. By hand, the same caps apply: capped agent types only, the same fan-out, one piece at a time.
+The phase contracts are identical either way.
 
 ## Phase 1: Architecture Spec
 
@@ -314,7 +362,7 @@ know what evidence each GATE will demand.
 
 **STOP.** Do not proceed to implementation without review.
 
-Launch a Plan subagent to review the spec:
+Launch a `dev-process:piece-reviewer` (hard-capped, read-only) to review the spec:
 
 ```
 "Review this architecture spec for completeness. Check:
@@ -374,14 +422,15 @@ If the library does NOT support what the spec assumed → update the spec and re
 
 ## Phase 3: Implementation
 
-Use agent teams for parallel work. Follow the dependency diagram from the spec.
+Follow the dependency diagram from the spec. Every implementation helper is a `dev-process:piece-builder`
+(hard-capped, see Resource budget); run independent legs in parallel only within the piece's budget.
 
 ### Sub-Skill Integration
 
 - **Use the `test-driven-development` skill** for each requirement. Write the test first, then the
   implementation. This is not optional — every requirement gets TDD treatment.
-- **Use the `subagent-driven-development` skill** to parallelize work across independent requirements.
-  Each implementation leg runs as a subagent with isolated scope.
+- **Do NOT use `subagent-driven-development` or agent teams** to spawn implementers: they start uncapped
+  agents. Each implementation leg is one `dev-process:piece-builder` with isolated scope.
 
 ### Progress Tracking
 
@@ -390,12 +439,11 @@ After each requirement is implemented (code + tests written):
 2. Git checkpoint: commit the requirement with a clear message (e.g., "Implement R3: [name]")
 3. Do NOT batch commits — one commit per requirement keeps the trail clean
 
-### Team Setup
+### Builder Setup
 
-1. Create a team (if not already in one)
-2. Create tasks for each implementation leg
-3. Set up dependencies between tasks
-4. Spawn implementation agents for each independent leg
+1. Create tasks for each implementation leg (at most 2 legs for a Tier-L piece; more means re-cut it)
+2. Set up dependencies between tasks
+3. Spawn one `dev-process:piece-builder` per leg; independent legs may run together
 
 ### Implementation Agent Instructions Template
 
@@ -423,7 +471,7 @@ Rules:
 
 **STOP.** All implementation must be reviewed before merging.
 
-Launch a code review agent:
+Launch a `dev-process:piece-reviewer` (hard-capped, read-only) to review the code:
 
 ```
 "Review the implementation against the architecture spec.
@@ -570,7 +618,8 @@ Go back to the phase where the open requirement needs work.
 
 ### Pre-ship checklist (Tier L; all must be YES)
 
-Tier S and M check only their own lane's gates (the Phase 0 table), then go straight to "Merge and ship" below.
+Tier S and M check only their own lane's gates (the Phase 0 table), plus the real-data gate when the change is
+one piece of multi-part work, then go straight to "Merge and ship" below.
 
 - [ ] Spec includes Current State Verification with command output?
 - [ ] Acceptance criteria are executable (not prose)?
@@ -578,6 +627,8 @@ Tier S and M check only their own lane's gates (the Phase 0 table), then go stra
 - [ ] Independent verifier (not builder) confirmed feature works?
 - [ ] Verifier evidence (screenshots/DOM checks) included in report?
 - [ ] All beads issues for this feature are closed? (`bd list --status=open` returns none)
+- [ ] Real-data gate: the owner can use this piece on their real data, and the report shows what they'd see?
+- [ ] Stayed within the piece's stated budget (helpers × turn caps)? If not, the owner was told before more was spent?
 
 If all YES:
 1. Final commit with clean message

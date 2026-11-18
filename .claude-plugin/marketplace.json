@@ -93,8 +93,8 @@
     {
       "name": "dev-process",
       "source": "./dev-process",
-      "description": "Structured development pipeline with spec-driven architecture, review gates, independent verification, and agent team coordination. Right-sizes the process (Tier S/M/L) and enforces an extensible Verification Suite of gates via the verify-before-close hook.",
-      "version": "2.5.1",
+      "description": "Structured development pipeline with spec-driven architecture, review gates and independent verification. Right-sizes each piece (Tier S/M/L), gives it a budget, hard-caps helper turns, and ends every piece with a real-data check.",
+      "version": "2.6.0",
       "category": "development",
       "tags": [
         "dev-process",
